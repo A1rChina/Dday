@@ -39,7 +39,7 @@
 | `name` | text | 是 | 仓库名称 | 无 | keep |
 | `type` | text | 是 | 仓库类型 | `'normal'` | keep |
 | `status` | text | 是 | 仓库启用状态 | `'active'` | keep |
-| `factoryId` | text | 是 | 关联所属工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
+| `factoryId` | text | 后续新增时必填 | 关联所属工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
 | `isVirtual` | integer | 后续新增时选填 | 是否为虚拟/逻辑仓 (0: 否, 1: 是)；数据库物理列为 `is_virtual` | `0` | need_add (v1_later) |
 | `sortOrder` | integer | 后续新增时选填 | 排序号；数据库物理列为 `sort_order` | `0` | need_add (v1_later) |
 | `remark` | text | 否 | 备注 | `''` | keep |
@@ -275,7 +275,7 @@
 #### 5. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| 缺少物品类型导致反射关联困难 | 目前入库主键 `itemId` 可指向产品表或物料表，系统难以做反射类型定位 | 必须在 V1 锁库前新增 `item_type` 字段，以实现对不同表数据的快速分流与结账 | 是 |
+| 缺少物品类型导致反射关联困难 | 目前入库主键 `itemId` 可指向产品表或物料表，系统难以做反射类型定位 | 必须在 V1 锁库前新增 `itemType` 字段，以实现对不同表数据的快速分流与结账（数据库物理列为 `item_type`） | 是 |
 
 ---
 
@@ -634,7 +634,7 @@
 | `scrapQuantity` | integer | 是 | 工序报废数 | `0` | keep |
 | `status` | text | 是 | 工序执行状态 | `'pending'` | keep |
 | `machineId` | text | 否 | 分配的物理机器ID | 无 | keep |
-| `reported_quantity` | integer | 后续新增时选填 | 该工序累积报工总数 | `0` | need_review |
+| `reportedQuantity` | integer | 后续新增时选填 | 该工序累积报工总数；数据库物理列为 `reported_quantity` | `0` | need_review |
 | `processCode` | text | 后续新增时选填 | 工序编码快照；数据库物理列为 `process_code` | `''` | need_add (v1_later) |
 | `machineCode` | text | 后续新增时选填 | 机器编码快照；数据库物理列为 `machine_code` | `''` | need_add (v1_later) |
 | `operator` | text | 后续新增时选填 | 当前首选操作工姓名 | `''` | need_add (v1_later) |
