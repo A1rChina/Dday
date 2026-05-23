@@ -4,7 +4,7 @@
 
 | 状态 | 含义 |
 |---|---|
-| keep | 字段保留，当前字段名 and 语义基本可接受 |
+| keep | 字段保留，当前字段名和语义基本可接受 |
 | rename_later | 字段语义可用，但字段名不准确，后续需要改名 |
 | deprecated | 字段后续废弃，新逻辑不应继续依赖 |
 | need_add | V1 应该补充该字段，但本次不新增 |
@@ -36,7 +36,7 @@
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
 |---|---|---|---|---|---|
 | `customerId` | text | 是 | 客户主键ID | 无 | keep |
-| `customer_code` | text | 是 | 客户业务编码 (如 CUST-001) | 无 | need_add |
+| `customer_code` | text | 后续新增时必填 | 客户业务编码 (如 CUST-001) | 无 | need_add |
 | `customerName` | text | 是 | 客户全称 | 无 | keep |
 | `customerShortName` | text | 否 | 客户简称 | `''` | keep |
 | `contactPerson` | text | 否 | 联系人 | `''` | keep |
@@ -65,7 +65,7 @@
 | `supplierName` | text | 供应商名称 | keep | 核心必填项。 |
 | `supplierShortName` | text | 供应商简称 | keep | 默认值为空字符串。 |
 | `contactPerson` | text | 联系人 | keep | 默认值为空字符串。 |
-| `contactPhone` | text | 联系电话 | keep | 默认值为空字符串. |
+| `contactPhone` | text | 联系电话 | keep | 默认值为空字符串。 |
 | `address` | text | 地址 | keep | 默认值为空字符串。 |
 | `defaultLeadTime` | integer | 默认采购周期（天数） | keep | 默认为 0。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
@@ -77,7 +77,7 @@
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
 |---|---|---|---|---|---|
 | `supplierId` | text | 是 | 供应商唯一ID | 无 | keep |
-| `supplier_code` | text | 是 | 供应商业务编码 (如 SUPP-001) | 无 | need_add |
+| `supplier_code` | text | 后续新增时必填 | 供应商业务编码 (如 SUPP-001) | 无 | need_add |
 | `supplierName` | text | 是 | 供应商名称 | 无 | keep |
 | `supplierShortName` | text | 否 | 供应商简称 | `''` | keep |
 | `contactPerson` | text | 否 | 联系人 | `''` | keep |
@@ -185,7 +185,7 @@
 | `updated_at` | text | 更新时间 | keep | 标准蛇形命名，物理列一致。 |
 | `project_id` | text | 关联项目ID | keep | |
 | `party_id` | text | 关联往来单位ID | deprecated | 历史遗留关联，V1 建议完全弃用该客户关联，统一通过 `products.project_id -> projects.customer_id` 关联查询获取客户，避免数据不一致。 |
-| `project_code` | text | 冗余项目编码 | deprecated | 属于冗余字段，可直接通过 `project_id` 关联查询。 |
+| `project_code` | text | 冗耐项目编码 | deprecated | 属于冗余字段，可直接通过 `project_id` 关联查询。 |
 | `factory` | text | 生产工厂名称 | rename_later | 字符串类型且默认“宜宾”，应替换为 `factory_id` 关联 `manufacturing_factories`。 |
 | `profile_code` | text | 默认型材编码 | deprecated | 型材默认代码以文本形式直存已废弃。主型材应通过 `product_materials` 表表达。如果后续新增 `product_materials.is_primary`，则 `is_primary = 1` 的物料为主型材；在未新增 `is_primary` 前，同一产品 active 状态下唯一一条 `product_materials` 记录视为主型材。 |
 
@@ -242,9 +242,9 @@
 | `type` | text | 是 | 物料类型 | `'profile'` (profile / raw / accessory) | keep |
 | `unit` | text | 是 | 单位 | `'pcs'` | keep |
 | `spec` | text | 否 | 规格型号 | `''` | keep |
-| `supplier_id` | text | 否 | 默认供应商ID | 无 | need_add |
-| `material_category` | text | 否 | 物料类别 (例如: 6系铝材) | `''` | need_add |
-| `default_lead_time` | integer | 是 | 默认采购天数 | `0` | need_add |
+| `supplier_id` | text | 后续新增时选填 | 默认供应商ID | 无 | need_add |
+| `material_category` | text | 后续新增时选填 | 物料类别 (例如: 6系铝材) | `''` | need_add |
+| `default_lead_time` | integer | 后续新增时必填 | 默认采购天数 | `0` | need_add |
 | `notes` | text | 否 | 备注 | `''` | keep |
 | `status` | text | 是 | 状态 | `'active'` (active / inactive) | keep |
 | `created_at` | text | 是 | 创建时间 | 当前时间戳 | keep |
@@ -280,11 +280,11 @@
 | `product_id` | text | 是 | 产品ID | 无 | keep |
 | `material_id` | text | 是 | 物料ID | 无 | keep |
 | `quantity` | integer | 是 | 单件产品消耗数量 | `1` | keep |
-| `usage_unit` | text | 否 | 消耗单位 | `'pcs'` | need_add |
-| `loss_rate` | real | 是 | 损耗率 | `0.0` | need_add |
-| `is_primary` | integer | 是 | 是否为主型材 (0: 否, 1: 是) | `1` | need_add |
+| `usage_unit` | text | 后续新增时选填 | 消耗单位 | `'pcs'` | need_add |
+| `loss_rate` | real | 后续新增时必填 | 损耗率 | `0.0` | need_add |
+| `is_primary` | integer | 后续新增时必填 | 是否为主型材 (0: 否, 1: 是) | `1` | need_add |
 | `status` | text | 是 | 状态 | `'active'` (active / inactive) | keep |
-| `remark` | text | 否 | 备注说明 | `''` | need_add |
+| `remark` | text | 后续新增时选填 | 备注说明 | `''` | need_add |
 | `created_at` | text | 是 | 创建时间 | 当前时间戳 | keep |
 | `updated_at` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
@@ -305,7 +305,7 @@
 |---|---|---|---|---|
 | `id` | text | 需求主表ID | keep | 主键。 |
 | `code` | text | 需求编码 | keep | 用于展示的导入批次单号。 |
-| `customerId` | text | 关联客户ID | keep | 必填。 |
+| `customerId` | text | 关联客户ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
 | `customerName` | text | 客户名称 | keep | 历史快照字段，用于保留需求导入时的客户/产品显示信息，不作为主数据唯一事实源。 |
 | `sourceType` | text | 来源类型 | keep | 默认 `'manual'`。 |
 | `sourceFileName` | text | 导入的文件名称 | keep | 默认空字符串。 |
@@ -321,7 +321,7 @@
 |---|---|---|---|---|---|
 | `id` | text | 是 | 需求主表ID | 无 | keep |
 | `code` | text | 是 | 需求编码 | 无 | keep |
-| `customer_id` | text | 是 | 关联客户ID | 无 | rename_later (由 `customerId` 改名) |
+| `customerId` | text | 是 | 关联客户ID | 无 | keep |
 | `customerName` | text | 否 | 客户名称历史快照 | `''` | keep |
 | `sourceType` | text | 是 | 需求来源 | `'manual'` (manual / excel_import) | keep |
 | `sourceFileName` | text | 否 | 导入的文件名称 | `''` | keep |
@@ -348,19 +348,19 @@
 | 字段 | 当前类型 | 当前含义 | 状态 | 备注 |
 |---|---|---|---|---|
 | `id` | text | 明细行ID | keep | 主键。 |
-| `demandId` | text | 关联需求主表ID | keep | 必填。 |
+| `demandId` | text | 关联需求主表ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
 | `code` | text | 明细行编码 | keep | 唯一索引，格式如 CD-001-001。 |
-| `customerId` | text | 客户ID | keep | |
+| `customerId` | text | 客户ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
 | `customerName` | text | 客户名称 | keep | 历史快照字段，用于保留需求导入时的客户/产品显示信息，不作为主数据唯一事实源。 |
 | `projectCode` | text | 项目编码 | rename_later | 建议改为 `project_id` 强外键关联项目表，避免存文本编码。 |
-| `productId` | text | 产品ID | keep | |
+| `productId` | text | 产品ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
 | `productCode` | text | 产品编码 | keep | 历史快照字段，用于保留需求导入时的客户/产品显示信息，不作为主数据唯一事实源。 |
 | `productName` | text | 产品名称 | keep | 历史快照字段，用于保留需求导入时的客户/产品显示信息，不作为主数据唯一事实源。 |
 | `sourceType` | text | 来源类型 | keep | 默认 `'manual'`。 |
 | `quantity` | integer | 需求数量 | keep | |
 | `deliveredQuantity` | integer | 已发货数量 | rename_later | 改名为 `shipped_quantity` 以符合语义。 |
 | `unshippedQuantity` | integer | 未发货数量 | rename_later | 改名为 `unshipped_quantity`，或建议直接通过计算得出。 |
-| `status` | text | 明细行状态 | keep | 默认 `'confirmed'`，需要对齐规范。 |
+| `status` | text | 明细行状态 | keep | 默认 `'imported'`，需要对齐规范。 |
 | `dueDate` | text | 要求交期 | keep | |
 | `notes` | text | 备注 | keep | |
 | `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
@@ -370,26 +370,26 @@
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
 |---|---|---|---|---|---|
 | `id` | text | 是 | 需求明细行ID | 无 | keep |
-| `demand_id` | text | 是 | 关联需求主表ID | 无 | rename_later (由 `demandId` 改名) |
+| `demandId` | text | 是 | 关联需求主表ID | 无 | keep |
 | `code` | text | 是 | 明细行编码 | 无 | keep |
-| `customer_id` | text | 是 | 客户ID | 无 | rename_later (由 `customerId` 改名) |
+| `customerId` | text | 是 | 客户ID | 无 | keep |
 | `customerName` | text | 否 | 客户名称快照 | `''` | keep |
 | `project_id` | text | 是 | 关联项目ID | 无 | need_add |
 | `productId` | text | 是 | 产品ID | 无 | keep |
 | `productCode` | text | 否 | 产品编码快照 | `''` | keep |
 | `productName` | text | 否 | 产品名称快照 | `''` | keep |
 | `quantity` | integer | 是 | 销售下单数量 | 无 | keep |
-| `required_quantity` | integer | 是 | 实际计算需求量 (可加备品系数) | `0` | need_add |
-| `planned_quantity` | integer | 是 | 已排产数量 | `0` | need_add |
-| `produced_quantity` | integer | 是 | 已报工合格数量 | `0` | need_add |
+| `required_quantity` | integer | 后续新增时必填 | 实际计算需求量 (可加备品系数) | `0` | need_add |
+| `planned_quantity` | integer | 后续新增时必填 | 已排产数量 | `0` | need_add |
+| `produced_quantity` | integer | 后续新增时必填 | 已报工合格数量 | `0` | need_add |
 | `shipped_quantity` | integer | 是 | 已发货数量 | `0` | rename_later (由 `deliveredQuantity` 改名) |
-| `cancelled_quantity` | integer | 是 | 已取消数量 | `0` | need_add |
-| `status` | text | 是 | 状态 | `'confirmed'` | keep |
+| `cancelled_quantity` | integer | 后续新增时选填 | 已取消数量 | `0` | need_add |
+| `status` | text | 是 | 状态 | `'imported'` | keep |
 | `dueDate` | text | 是 | 交期 | 无 | keep |
-| `priority` | text | 是 | 优先级 | `'medium'` (high/medium/low) | need_add |
-| `source_line_no` | text | 否 | 导入的原始行号 | `''` | need_add |
+| `priority` | text | 后续新增时必填 | 优先级 | `'medium'` (high/medium/low) | need_add |
+| `source_line_no` | text | 后续新增时选填 | 导入的原始行号 | `''` | need_add |
 | `notes` | text | 否 | 备注 | `''` | keep |
-| `closed_at` | text | 否 | 关闭时间 | 无 | need_add |
+| `closed_at` | text | 后续新增时选填 | 关闭时间 | 无 | need_add |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
 | `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
@@ -422,7 +422,7 @@
 #### 5. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| 未发货数量 `unshippedQuantity` 维护冲突 | 数据库中物理存了 `unshippedQuantity` 字段，且每次发货都需要手动更新 `deliveredQuantity` 和 `unshippedQuantity` | 废弃 `unshippedQuantity` 字段 the physical storage，改为通过 SQL 动态计算 (quantity - shipped_quantity)，防止并发更新时数据不对齐 | 否，仅涉及计算优化 |
+| 未发货数量 `unshippedQuantity` 维护冲突 | 数据库中物理存了 `unshippedQuantity` 字段，且每次发货都需要手动更新 `deliveredQuantity` 和 `unshippedQuantity` | 废弃 `unshippedQuantity` 字段的物理存储，改为通过 SQL 动态计算 (quantity - shipped_quantity)，防止并发更新时数据不对齐 | 否，仅涉及计算优化 |
 | 生产计划目前未强回写此明细行 | 排产和完工合格数没有更新回 `demand_lines` 的对应统计字段 | 当生产计划发布和工单完工时，应调用明细行服务，回写 `planned_quantity` 和 `produced_quantity` | 是，直接影响销售订单执行进度的跟踪统计 |
 
 ---
@@ -444,10 +444,10 @@
 | `productCode` | text | 关联产品编码 | keep | 生产计划生成时的历史快照字段，用于列表展示和历史追溯，不作为主数据唯一事实源。 |
 | `materialCode` | text | 关联型材编码 | keep | 生产计划生成时的历史快照字段，用于列表展示和历史追溯，不作为主数据唯一事实源。 |
 | `planPeriod` | text | 计划周期 | keep | 格式如 2026-05。 |
-| `projectId` | text | 项目ID | keep | |
-| `customerId` | text | 客户ID | keep | |
-| `productId` | text | 产品ID | keep | |
-| `materialId` | text | 物料ID | keep | 指主型材的ID。 |
+| `projectId` | text | 项目ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
+| `customerId` | text | 客户ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
+| `productId` | text | 产品ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
+| `materialId` | text | 物料ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
 | `planQty` | integer | 计划排产数量 | deprecated | 与 `plannedQuantity` 重复冗余。 |
 | `plannedQuantity` | integer | 计划生产数量 | keep | 建议统一使用此字段。 |
 | `dueDate` | text | 计划交付日期 | keep | |
@@ -478,7 +478,7 @@
 | `materialId` | text | 否 | 主消耗型材ID | 无 | keep |
 | `materialCode` | text | 否 | 原材料编码快照 | `''` | keep |
 | `factory_id` | text | 是 | 计划生产工厂ID | 无 | need_add |
-| `plan_type` | text | 是 | 计划排产类型 | `'normal'` (normal / rework / stock) | need_add |
+| `plan_type` | text | 后续新增时必填 | 计划排产类型 | `'normal'` (normal / rework / stock) | need_add |
 | `plannedQuantity` | integer | 是 | 计划排产数量 | `0` | keep |
 | `dueDate` | text | 是 | 截止交期 | 无 | keep |
 | `priority` | text | 是 | 优先级 | `'medium'` (high/medium/low) | keep |
@@ -489,8 +489,8 @@
 | `status` | text | 是 | 状态 | `'draft'` | keep |
 | `createdBy` | text | 否 | 创建人 | `''` | keep |
 | `releasedAt` | text | 否 | 发布时间 | 无 | keep |
-| `locked_at` | text | 否 | 锁定时间 | 无 | need_add |
-| `cancelled_at` | text | 否 | 取消时间 | 无 | need_add |
+| `locked_at` | text | 后续新增时选填 | 锁定时间 | 无 | need_add |
+| `cancelled_at` | text | 后续新增时选填 | 取消时间 | 无 | need_add |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
 | `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
@@ -512,10 +512,10 @@
 |---|---|---|---|---|
 | `id` | text | 工单ID | keep | 主键。 |
 | `code` | text | 工单单号 | keep | 唯一。 |
-| `productionPlanId` | text | 关联生产计划ID | keep | 允许为空，但正常从计划派发 |
+| `productionPlanId` | text | 关联生产计划ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
 | `orderLineId` | text | 关联订单明细行ID | deprecated | 历史遗留字段，新逻辑不再依赖。 |
-| `productId` | text | 产品ID | keep | |
-| `materialId` | text | 型材/物料ID | keep | 工单主要领用的物料ID |
+| `productId` | text | 产品ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
+| `materialId` | text | 型材/物料ID | keep | 数据库物理列已通过 Drizzle 映射，TS 属性名暂不修改。 |
 | `customerName` | text | 客户名称 | rename_later / deprecated | 冗余存储，应通过关联查询，或改名 `customer_id` |
 | `projectName` | text | 项目名称 | rename_later / deprecated | 冗余存储 |
 | `plannedQuantity` | integer | 计划生产数 | keep | |
@@ -539,7 +539,7 @@
 |---|---|---|---|---|---|
 | `id` | text | 是 | 工单主键 | 无 | keep |
 | `code` | text | 是 | 工单单号 | 无 | keep |
-| `production_plan_id` | text | 否 | 生产计划ID | 无 | rename_later (由 `productionPlanId` 重命名) |
+| `productionPlanId` | text | 否 | 生产计划ID | 无 | keep |
 | `orderLineId` | text | 否 | 关联订单明细行ID（已废弃） | 无 | deprecated |
 | `productId` | text | 是 | 产品ID | 无 | keep |
 | `materialId` | text | 否 | 主型材物料ID | 无 | keep |
@@ -556,11 +556,11 @@
 | `plannedFinishDate` | text | 否 | 计划结束时间 | `''` | keep |
 | `currentStepId` | text | 否 | 当前工位/工序 | 无 | keep |
 | `notes` | text | 否 | 备注 | `''` | keep |
-| `released_at` | text | 否 | 发布时间 | 无 | need_add |
-| `started_at` | text | 否 | 实际开工时间 | 无 | need_add |
+| `released_at` | text | 后续新增时选填 | 发布时间 | 无 | need_add |
+| `started_at` | text | 后续新增时选填 | 实际开工时间 | 无 | need_add |
 | `completedAt` | text | 否 | 实际完工时间 | 无 | keep |
 | `closedAt` | text | 否 | 实际关闭时间 | 无 | keep |
-| `cancelled_at` | text | 否 | 取消时间 | 无 | need_add |
+| `cancelled_at` | text | 后续新增时选填 | 取消时间 | 无 | need_add |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
 | `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
@@ -607,17 +607,17 @@
 |---|---|---|---|---|---|
 | `id` | text | 是 | 库存主键ID | 无 | keep |
 | `itemId` | text | 是 | 产品ID / 物料ID | 无 | keep |
-| `itemCode` | 否 | 物料编码缓存 | `''` | keep | |
-| `itemName` | 否 | 物料名称缓存 | `''` | keep | |
+| `itemCode` | text | 否 | 物料编码缓存 | `''` | keep |
+| `itemName` | text | 否 | 物料名称缓存 | `''` | keep |
 | `itemType` | text | 是 | 物品类型 | `'material'` (material/product) | keep |
 | `projectId` | text | 否 | 关联项目ID | 无 | keep |
-| `projectCode` | 否 | 项目编码缓存 | `''` | keep | |
+| `projectCode` | text | 否 | 项目编码缓存 | `''` | keep |
 | `customerId` | text | 否 | 关联客户ID | 无 | keep |
-| `customerName` | 否 | 客户名称缓存 | `''` | keep | |
+| `customerName` | text | 否 | 客户名称缓存 | `''` | keep |
 | `warehouseId` | text | 是 | 仓库ID | 无 | keep |
-| `warehouseName` | 否 | 仓库名称缓存 | `''` | keep | |
+| `warehouseName` | text | 否 | 仓库名称缓存 | `''` | keep |
 | `locationId` | text | 否 | 库位ID | 无 | keep |
-| `locationCode` | 否 | 库位编码缓存 | `''` | keep | |
+| `locationCode` | text | 否 | 库位编码缓存 | `''` | keep |
 | `inventoryStatus` | text | 是 | 库存状态枚举 | `'available'` | keep |
 | `quantity` | integer | 是 | 当前结存数量 | `0` | keep |
 | `unit` | text | 是 | 计量单位 | `'pcs'` | keep |
@@ -642,7 +642,7 @@
 | 字段 | 当前类型 | 当前含义 | 状态 | 备注 |
 |---|---|---|---|---|
 | `id` | text | 流水ID | keep | 主键 |
-| `transactionNo` | text | 变动流水号 | keep | 唯一，以 ITX 为前缀 of 单号 |
+| `transactionNo` | text | 变动流水号 | keep | 唯一，以 ITX 为前缀的单号 |
 | `itemId` | text | 物品ID | keep | 物料或产品ID |
 | `itemCode` | text | 物品编码 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
 | `itemName` | text | 物品名称 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
@@ -659,7 +659,7 @@
 | `quantityChange` | integer | 变动数量 | keep | 可正可负（入库为正，出库为负） |
 | `beforeQuantity` | integer | 变动前数量 | keep | 默认 0 |
 | `afterQuantity` | integer | 变动后数量 | keep | 默认 0 |
-| `fromStatus` | text | 变动前库存状态 | keep | 用于冻结和状态变更流水记录 |
+| `fromStatus` | text | 变动前库存状态 | keep | 用于冻结 and 状态变更流水记录 |
 | `toStatus` | text | 变动后库存状态 | keep | |
 | `sourceType` | text | 源单据类型 | keep | 如 `'purchase'`, `'work_order'`, `'shipment'` |
 | `sourceId` | text | 源单据ID | keep | 关联的具体源头记录ID |
@@ -676,17 +676,17 @@
 | `id` | text | 是 | 流水ID | 无 | keep |
 | `transactionNo` | text | 是 | 流水编码 | 无 | keep |
 | `itemId` | text | 是 | 产品ID / 物料ID | 无 | keep |
-| `itemCode` | 否 | 物料编码快照 | `''` | keep | |
-| `itemName` | 否 | 物料名称快照 | `''` | keep | |
+| `itemCode` | text | 否 | 物料编码快照 | `''` | keep |
+| `itemName` | text | 否 | 物料名称快照 | `''` | keep |
 | `itemType` | text | 是 | 物品类型 | `'material'` | keep |
 | `projectId` | text | 否 | 关联项目ID | 无 | keep |
-| `projectCode` | 否 | 项目编码快照 | `''` | keep | |
+| `projectCode` | text | 否 | 项目编码快照 | `''` | keep |
 | `customerId` | text | 否 | 关联客户ID | 无 | keep |
-| `customerName` | 否 | 客户名称快照 | `''` | keep | |
+| `customerName` | text | 否 | 客户名称快照 | `''` | keep |
 | `warehouseId` | text | 是 | 仓库ID | 无 | keep |
-| `warehouseName` | 否 | 仓库名称快照 | `''` | keep | |
+| `warehouseName` | text | 否 | 仓库名称快照 | `''` | keep |
 | `locationId` | text | 否 | 库位ID | 无 | keep |
-| `locationCode` | 否 | 库位编码快照 | `''` | keep | |
+| `locationCode` | text | 否 | 库位编码快照 | `''` | keep |
 | `transactionType` | text | 是 | 变动类型枚举 | 无 | keep |
 | `quantityChange` | integer | 是 | 变动数量 (入库为正，出库为负) | 无 | keep |
 | `beforeQuantity` | integer | 是 | 变动前结存量 | `0` | keep |
