@@ -39,9 +39,9 @@
 | `name` | text | 是 | 仓库名称 | 无 | keep |
 | `type` | text | 是 | 仓库类型 | `'normal'` | keep |
 | `status` | text | 是 | 仓库启用状态 | `'active'` | keep |
-| `factory_id` | text | 是 | 关联所属工厂ID | 无 | need_add (v1_later) |
-| `is_virtual` | integer | 后续新增时选填 | 是否为虚拟/逻辑仓 (0: 否, 1: 是) | `0` | need_add (v1_later) |
-| `sort_order` | integer | 后续新增时选填 | 排序号 | `0` | need_add (v1_later) |
+| `factoryId` | text | 是 | 关联所属工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
+| `isVirtual` | integer | 后续新增时选填 | 是否为虚拟/逻辑仓 (0: 否, 1: 是)；数据库物理列为 `is_virtual` | `0` | need_add (v1_later) |
+| `sortOrder` | integer | 后续新增时选填 | 排序号；数据库物理列为 `sort_order` | `0` | need_add (v1_later) |
 | `remark` | text | 否 | 备注 | `''` | keep |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
 | `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
@@ -81,11 +81,11 @@
 |---|---|---|---|---|---|
 | `id` | text | 是 | 库位ID | 无 | keep |
 | `warehouseCode` | text | 是 | 关联仓库编码 | 无 | rename_later |
-| `warehouse_id` | text | 后续新增时必填 | 关联仓库ID | 无 | need_add (v1_later) |
+| `warehouseId` | text | 后续新增时必填 | 关联仓库ID；数据库物理列为 `warehouse_id` | 无 | need_add (v1_later) |
 | `code` | text | 是 | 库位编码 | 无 | keep |
 | `name` | text | 是 | 库位名称 | 无 | keep |
-| `is_default` | integer | 后续新增时选填 | 是否为仓库默认库位 (0: 否, 1: 是) | `0` | need_add (v1_later) |
-| `sort_order` | integer | 后续新增时选填 | 排序号 | `0` | need_add (v1_later) |
+| `isDefault` | integer | 后续新增时选填 | 是否为仓库默认库位 (0: 否, 1: 是)；数据库物理列为 `is_default` | `0` | need_add (v1_later) |
+| `sortOrder` | integer | 后续新增时选填 | 排序号；数据库物理列为 `sort_order` | `0` | need_add (v1_later) |
 | `status` | text | 是 | 库位启用状态 | `'active'` | keep |
 | `remark` | text | 否 | 备注 | `''` | keep |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
@@ -212,10 +212,10 @@
 | `sourceType` | text | 是 | 入库单业务来源 | `'manual'` | keep |
 | `status` | text | 是 | 单据状态 | `'draft'` | keep |
 | `receivedDate` | text | 是 | 实际入库接收日期 | 无 | keep |
-| `source_id` | text | 后续新增时选填 | 关联的源单主键ID | 无 | need_add (v1_later) |
-| `source_no` | text | 后续新增时选填 | 关联的源单号快照 | 无 | need_add (v1_later) |
-| `confirmed_at` | text | 后续新增时选填 | 确认审核入库时间 | 无 | need_add (v1_later) |
-| `confirmed_by` | text | 后续新增时选填 | 确认审核入库人 | 无 | need_add (v1_later) |
+| `sourceId` | text | 后续新增时选填 | 关联的源单主键ID；数据库物理列为 `source_id` | 无 | need_add (v1_later) |
+| `sourceNo` | text | 后续新增时选填 | 关联的源单号快照；数据库物理列为 `source_no` | 无 | need_add (v1_later) |
+| `confirmedAt` | text | 后续新增时选填 | 确认审核入库时间；数据库物理列为 `confirmed_at` | 无 | need_add (v1_later) |
+| `confirmedBy` | text | 后续新增时选填 | 确认审核入库人；数据库物理列为 `confirmed_by` | 无 | need_add (v1_later) |
 | `notes` | text | 否 | 备注 | `''` | keep |
 | `createdBy` | text | 否 | 创建人 | `''` | keep |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
@@ -259,16 +259,16 @@
 | `id` | text | 是 | 明细ID | 无 | keep |
 | `receiptId` | text | 是 | 关联入库单ID | 无 | keep |
 | `itemId` | text | 是 | 原材料ID / 产成品ID | 无 | keep |
-| `item_type` | text | 是 | 物品类型 (material / product) | 无 | need_add (lock_before_v1) |
-| `item_code` | text | 后续新增时选填 | 物品编码快照 | `''` | need_add (v1_later) |
-| `item_name` | text | 后续新增时选填 | 物品名称快照 | `''` | need_add (v1_later) |
+| `itemType` | text | 是 | 物品类型 (material / product)；数据库物理列为 `item_type` | 无 | need_add (lock_before_v1) |
+| `itemCode` | text | 后续新增时选填 | 物品编码快照；数据库物理列为 `item_code` | `''` | need_add (v1_later) |
+| `itemName` | text | 后续新增时选填 | 物品名称快照；数据库物理列为 `item_name` | `''` | need_add (v1_later) |
 | `projectId` | text | 否 | 关联项目ID | 无 | keep |
-| `batchNo` | text | 是 | 批次号/热处理炉号 | 无 | keep |
+| `batchNo` | text | 否 | 批次号 / 炉号，当前 V1 作为选填追溯字段，不作为主线必填字段。 | 无 | keep |
 | `quantity` | integer | 是 | 实际接收数量 | 无 | keep |
 | `unit` | text | 后续新增时选填 | 计量单位 | `'pcs'` | need_add (v1_later) |
 | `warehouseId` | text | 是 | 入库仓库ID | 无 | keep |
 | `locationId` | text | 否 | 入库库位ID | 无 | keep |
-| `inventory_status` | text | 后续新增时选填 | 入库库存状态 | `'available'` (available / inspection) | need_add (v1_later) |
+| `inventoryStatus` | text | 后续新增时选填 | 入库库存状态；数据库物理列为 `inventory_status` | `'available'` (available / inspection) | need_add (v1_later) |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
 | `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
@@ -305,10 +305,10 @@
 | `sourceType` | text | 是 | 出库单业务来源 | `'manual'` | keep |
 | `status` | text | 是 | 单据状态 | `'draft'` | keep |
 | `issuedDate` | text | 是 | 实际发料出库时间 | 无 | keep |
-| `source_id` | text | 后续新增时选填 | 关联的源单主键ID | 无 | need_add (v1_later) |
-| `source_no` | text | 后续新增时选填 | 关联的源单号快照 | 无 | need_add (v1_later) |
-| `confirmed_at` | text | 后续新增时选填 | 确认审核出库时间 | 无 | need_add (v1_later) |
-| `confirmed_by` | text | 后续新增时选填 | 确认审核出库人 | 无 | need_add (v1_later) |
+| `sourceId` | text | 后续新增时选填 | 关联的源单主键ID；数据库物理列为 `source_id` | 无 | need_add (v1_later) |
+| `sourceNo` | text | 后续新增时选填 | 关联的源单号快照；数据库物理列为 `source_no` | 无 | need_add (v1_later) |
+| `confirmedAt` | text | 后续新增时选填 | 确认审核出库时间；数据库物理列为 `confirmed_at` | 无 | need_add (v1_later) |
+| `confirmedBy` | text | 后续新增时选填 | 确认审核出库人；数据库物理列为 `confirmed_by` | 无 | need_add (v1_later) |
 | `notes` | text | 否 | 备注 | `''` | keep |
 | `createdBy` | text | 否 | 创建人 | `''` | keep |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
@@ -352,16 +352,16 @@
 | `id` | text | 是 | 明细ID | 无 | keep |
 | `issueId` | text | 是 | 关联出库单ID | 无 | keep |
 | `itemId` | text | 是 | 原材料ID / 产成品ID | 无 | keep |
-| `item_type` | text | 是 | 物品类型 (material / product) | 无 | need_add (lock_before_v1) |
-| `item_code` | text | 后续新增时选填 | 物品编码快照 | `''` | need_add (v1_later) |
-| `item_name` | text | 后续新增时选填 | 物品名称快照 | `''` | need_add (v1_later) |
+| `itemType` | text | 是 | 物品类型 (material / product)；数据库物理列为 `item_type` | 无 | need_add (lock_before_v1) |
+| `itemCode` | text | 后续新增时选填 | 物品编码快照；数据库物理列为 `item_code` | `''` | need_add (v1_later) |
+| `itemName` | text | 后续新增时选填 | 物品名称快照；数据库物理列为 `item_name` | `''` | need_add (v1_later) |
 | `projectId` | text | 否 | 关联项目ID | 无 | keep |
-| `batchNo` | text | 是 | 批次号/热处理炉号 | 无 | keep |
+| `batchNo` | text | 否 | 批次号 / 炉号，当前 V1 作为选填追溯字段，不作为主线必填字段。 | 无 | keep |
 | `quantity` | integer | 是 | 实际出库数量 | 无 | keep |
 | `unit` | text | 后续新增时选填 | 计量单位 | `'pcs'` | need_add (v1_later) |
 | `warehouseId` | text | 是 | 出库仓库ID | 无 | keep |
 | `locationId` | text | 否 | 出库库位ID | 无 | keep |
-| `inventory_status` | text | 后续新增时选填 | 指定从哪类库存状态出库 | `'available'` | need_add (v1_later) |
+| `inventoryStatus` | text | 后续新增时选填 | 指定从哪类库存状态出库；数据库物理列为 `inventory_status` | `'available'` | need_add (v1_later) |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
 | `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
@@ -426,10 +426,10 @@
 | `inventoryLockId` | text | 否 | 关联锁定冻结ID | 无 | keep |
 | `handlingMethod` | text | 否 | 最终判定处理方式 | `''` | keep |
 | `warehouseCode` | text | 否 | 仓库编码快照 | 无 | rename_later |
-| `warehouseId` | text | 后续新增时选填 | 仓库ID | 无 | need_add (v1_later) |
+| `warehouseId` | text | 后续新增时选填 | 仓库ID；数据库物理列为 `warehouse_id` | 无 | need_add (v1_later) |
 | `locationCode` | text | 否 | 库位编码快照 | 无 | rename_later |
-| `locationId` | text | 后续新增时选填 | 库位ID | 无 | need_add (v1_later) |
-| `batchNo` | text | 是 | 批次号/热处理炉号 | 无 | keep |
+| `locationId` | text | 后续新增时选填 | 库位ID；数据库物理列为 `location_id` | 无 | need_add (v1_later) |
+| `batchNo` | text | 否 | 批次号 / 炉号，当前 V1 作为选填追溯字段，不作为主线必填字段。 | 无 | keep |
 | `owner` | text | 否 | 负责人姓名 | `''` | keep |
 | `closedAt` | text | 否 | 关闭时间 | 无 | keep |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
@@ -470,10 +470,10 @@
 | `action` | text | 是 | 执行动作类型 | 无 | keep |
 | `message` | text | 否 | 动作说明描述 | `''` | keep |
 | `actor` | text | 是 | 操作员姓名 | 无 | keep |
-| `action_type` | text | 后续新增时选填 | 操作归类 (如 freeze / scrap) | `''` | need_add (v1_later) |
+| `actionType` | text | 后续新增时选填 | 操作归类 (如 freeze / scrap)；数据库物理列为 `action_type` | `''` | need_add (v1_later) |
 | `quantity` | integer | 后续新增时选填 | 动作涉及数量 | `0` | need_add (v1_later) |
-| `related_transaction_id` | text | 后续新增时选填 | 关联的库存变动流水ID | 无 | need_add (v1_later) |
-| `related_hold_id` | text | 后续新增时选填 | 关联的锁定冻结ID | 无 | need_add (v1_later) |
+| `relatedTransactionId` | text | 后续新增时选填 | 关联的库存变动流水ID；数据库物理列为 `related_transaction_id` | 无 | need_add (v1_later) |
+| `relatedHoldId` | text | 后续新增时选填 | 关联的锁定冻结ID；数据库物理列为 `related_hold_id` | 无 | need_add (v1_later) |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
 
 #### 4. 状态枚举
@@ -556,6 +556,11 @@
 #### 1. 业务定位
 `shipment_items` 是实际发货单的明细子表。它记录了每次发货出库的物品明细行，是多品合并发货的唯一可信计算事实源。发货确认时，系统逐行扣减可用库存，并相应回写 `demand_lines` 的已发/未发数量。
 
+**与主表的 demandLineId 兼容规则**：
+- 如果 V1 暂时只支持单品单需求行发货，且 `shipments.demandLineId` 已存在，则可以短期兼容主表上的 `demandLineId`。
+- 一旦启用 `shipment_items` 明细发货，必须以 `shipment_items.demandLineId` 作为发货回写需求行的唯一可信来源。
+- **规则**：单头字段可兼容旧逻辑，明细字段是未来主线。不允许同时存在两个互相冲突的需求行来源。如果明细存在，则优先信任明细。
+
 #### 2. 当前字段审计
 | 字段 | 当前类型 | 当前含义 | 状态 | 备注 |
 |---|---|---|---|---|
@@ -575,13 +580,13 @@
 | `orderItemId` | text | 否 | 旧条目外键（已废弃） | 无 | deprecated |
 | `productId` | text | 是 | 关联发货产品ID | 无 | keep |
 | `quantity` | integer | 是 | 发货出库数量 | 无 | keep |
-| `batchNo` | text | 是 | 发货批次号 | 无 | keep |
-| `demandLineId` | text | 是 | 关联需求计划行ID (数据库物理列应为 `demand_line_id`) | 无 | need_add (lock_before_v1) |
-| `warehouse_id` | text | 后续新增时选填 | 扣减库存仓库ID | 无 | need_add (v1_later) |
-| `location_id` | text | 后续新增时选填 | 扣减库存库位ID | 无 | need_add (v1_later) |
+| `batchNo` | text | 否 | 发货批次号，当前 V1 作为选填追溯字段，不作为主线必填字段。 | 无 | keep |
+| `demandLineId` | text | 是 | 关联需求计划行ID；数据库物理列应为 `demand_line_id` | 无 | need_add (lock_before_v1) |
+| `warehouseId` | text | 后续新增时选填 | 扣减库存仓库ID；数据库物理列应为 `warehouse_id` | 无 | need_add (v1_later) |
+| `locationId` | text | 后续新增时选填 | 扣减库存库位ID；数据库物理列应为 `location_id` | 无 | need_add (v1_later) |
 | `unit` | text | 后续新增时选填 | 单位 | `'pcs'` | need_add (v1_later) |
-| `product_code` | text | 后续新增时选填 | 发货产品编码快照 | `''` | need_add (v1_later) |
-| `product_name` | text | 后续新增时选填 | 发货产品名称快照 | `''` | need_add (v1_later) |
+| `productCode` | text | 后续新增时选填 | 发货产品编码快照；数据库物理列应为 `product_code` | `''` | need_add (v1_later) |
+| `productName` | text | 后续新增时选填 | 发货产品名称快照；数据库物理列应为 `product_name` | `''` | need_add (v1_later) |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
 
 #### 5. 需要人工确认的问题
@@ -630,10 +635,10 @@
 | `status` | text | 是 | 工序执行状态 | `'pending'` | keep |
 | `machineId` | text | 否 | 分配的物理机器ID | 无 | keep |
 | `reported_quantity` | integer | 后续新增时选填 | 该工序累积报工总数 | `0` | need_review |
-| `process_code` | text | 后续新增时选填 | 工序编码快照 | `''` | need_add (v1_later) |
-| `machine_code` | text | 后续新增时选填 | 机器编码快照 | `''` | need_add (v1_later) |
+| `processCode` | text | 后续新增时选填 | 工序编码快照；数据库物理列为 `process_code` | `''` | need_add (v1_later) |
+| `machineCode` | text | 后续新增时选填 | 机器编码快照；数据库物理列为 `machine_code` | `''` | need_add (v1_later) |
 | `operator` | text | 后续新增时选填 | 当前首选操作工姓名 | `''` | need_add (v1_later) |
-| `quality_required` | integer | 后续新增时选填 | 本工序是否强检 (0: 否, 1: 是) | `0` | need_add (v1_later) |
+| `qualityRequired` | integer | 后续新增时选填 | 本工序是否强检 (0: 否, 1: 是)；数据库物理列为 `quality_required` | `0` | need_add (v1_later) |
 | `startedAt` | text | 否 | 实际开工日期时间 | 无 | keep |
 | `completedAt` | text | 否 | 实际完工日期时间 | 无 | keep |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
@@ -690,7 +695,7 @@
 | `cardId` | text | 否 | 流程卡主键 | 无 | keep |
 | `cardCode` | text | 否 | 流程卡条码快照 | `''` | keep |
 | `productionOrderId` | text | 是 | 关联派工单 (实际应映射为 `workOrderId`) | 无 | rename_later |
-| `workOrderId` | text | 后续新增时必填 | 关联派工工单ID | 无 | need_add (v1_later) |
+| `workOrderId` | text | 后续新增时必填 | 关联派工工单ID；数据库物理列为 `work_order_id` | 无 | need_add (v1_later) |
 | `operationId` | text | 是 | 关联工序步骤ID | 无 | keep |
 | `operationName` | text | 是 | 工序名称快照 | 无 | keep |
 | `reportType` | text | 是 | 报工类型 | 无 | keep |
@@ -701,7 +706,7 @@
 | `operator` | text | 是 | 报工操作员 | 无 | keep |
 | `inspector` | text | 否 | 质检判定员 | `''` | keep |
 | `equipment` | text | 否 | 加工设备快照名称 | `''` | rename_later |
-| `machineId` | text | 后续新增时选填 | 加工机器设备ID | 无 | need_add (v1_later) |
+| `machineId` | text | 后续新增时选填 | 加工机器设备ID；数据库物理列为 `machine_id` | 无 | need_add (v1_later) |
 | `defectReason` | text | 否 | 不良品产生原因 | `''` | keep |
 | `manualReason` | text | 否 | 手工填报原因 | `''` | keep |
 | `remark` | text | 否 | 备注 | `''` | keep |
@@ -739,48 +744,48 @@
 
 | 表 | 建议新增字段 | 原因 | 优先级 |
 |---|---|---|---|
-| `receipt_items` | `item_type` | 区分入库明细记录的是原材料(material)还是产品(product)以关联正确的表。 | `lock_before_v1` |
-| `issue_items` | `item_type` | 区分出库明细记录是原材料(material)还是产品(product)。 | `lock_before_v1` |
-| `shipment_items` | `demandLineId` | 核心发货追溯外键，确保发货扣减时精准回写销售需求行数量（数据库物理列应为 `demand_line_id`）。 | `lock_before_v1` |
-| `warehouses` | `factory_id` | 仓库必须明确归属于哪个工厂，以便按工厂组织数据隔离。 | `v1_later` |
-| `warehouses` | `is_virtual` | 标识是否为虚拟/逻辑仓库（如虚拟在途仓、外协虚拟仓）。 | `v1_later` |
-| `warehouses` | `sort_order` | 排序号，控制前台仓库列表展示顺序。 | `v1_later` |
-| `locations` | `warehouse_id` | 库位强外键关联到仓库表，逐步替代原 `warehouseCode`。 | `v1_later` |
-| `locations` | `is_default` | 标识是否为仓库的默认库位，用于入库时默认推荐。 | `v1_later` |
-| `locations` | `sort_order` | 排序号，控制前台库位列表展示顺序。 | `v1_later` |
-| `receipts` | `source_id` | 记录生成入库单的源业务记录主键（如采购收料单ID、工单ID）。 | `v1_later` |
-| `receipts` | `source_no` | 记录源业务单号快照，方便对账。 | `v1_later` |
-| `receipts` | `confirmed_at` | 确认审核入库的系统时间。 | `v1_later` |
-| `receipts` | `confirmed_by` | 确认审核入库的操作员。 | `v1_later` |
-| `receipt_items` | `item_code` | 物品编码快照，作为历史追溯和对账的冗余备份。 | `v1_later` |
-| `receipt_items` | `item_name` | 物品名称快照，便于列表直观展示。 | `v1_later` |
+| `receipt_items` | `itemType` | 区分入库明细记录的是原材料(material)还是产品(product)以关联正确的表；数据库物理列为 `item_type`。 | `lock_before_v1` |
+| `issue_items` | `itemType` | 区分出库明细记录是原材料(material)还是产品(product)；数据库物理列为 `item_type`。 | `lock_before_v1` |
+| `shipment_items` | `demandLineId` | 核心发货追溯外键，确保发货扣减时精准回写销售需求行数量；数据库物理列应为 `demand_line_id`。 | `lock_before_v1` |
+| `warehouses` | `factoryId` | 仓库必须明确归属于哪个工厂，以便按工厂组织数据隔离；数据库物理列为 `factory_id`。 | `v1_later` |
+| `warehouses` | `isVirtual` | 标识是否为虚拟/逻辑仓库（如虚拟在途仓、外协虚拟仓）；数据库物理列为 `is_virtual`。 | `v1_later` |
+| `warehouses` | `sortOrder` | 排序号，控制前台仓库列表展示顺序；数据库物理列为 `sort_order`。 | `v1_later` |
+| `locations` | `warehouseId` | 库位强外键关联到仓库表，逐步替代原 `warehouseCode`；数据库物理列为 `warehouse_id`。 | `v1_later` |
+| `locations` | `isDefault` | 标识是否为仓库的默认库位，用于入库时默认推荐；数据库物理列为 `is_default`。 | `v1_later` |
+| `locations` | `sortOrder` | 排序号，控制前台库位列表展示顺序；数据库物理列为 `sort_order`。 | `v1_later` |
+| `receipts` | `sourceId` | 记录生成入库单的源业务记录主键（如采购收料单ID、工单ID）；数据库物理列为 `source_id`。 | `v1_later` |
+| `receipts` | `sourceNo` | 记录源业务单号快照，方便对账；数据库物理列为 `source_no`。 | `v1_later` |
+| `receipts` | `confirmedAt` | 确认审核入库的系统时间；数据库物理列为 `confirmed_at`。 | `v1_later` |
+| `receipts` | `confirmedBy` | 确认审核入库的操作员；数据库物理列为 `confirmed_by`。 | `v1_later` |
+| `receipt_items` | `itemCode` | 物品编码快照，作为历史追溯和对账的冗余备份；数据库物理列为 `item_code`。 | `v1_later` |
+| `receipt_items` | `itemName` | 物品名称快照，便于列表直观展示；数据库物理列为 `item_name`。 | `v1_later` |
 | `receipt_items` | `unit` | 计量单位，用以检验入库单位是否与库存主数据单位一致。 | `v1_later` |
-| `receipt_items` | `inventory_status` | 入库库存状态（如默认 available，或直接入待检区/冻结状态）。 | `v1_later` |
-| `issues` | `source_id` | 记录生成出库单的源业务记录主键（如生产领料计划ID、发货计划ID）。 | `v1_later` |
-| `issues` | `source_no` | 记录源业务单单号快照。 | `v1_later` |
-| `issues` | `confirmed_at` | 确认审核出库的系统时间。 | `v1_later` |
-| `issues` | `confirmed_by` | 确认审核出库的操作员。 | `v1_later` |
-| `issue_items` | `item_code` | 物品编码快照，冗余追溯使用。 | `v1_later` |
-| `issue_items` | `item_name` | 物品名称快照。 | `v1_later` |
+| `receipt_items` | `inventoryStatus` | 入库库存状态（如默认 available，或直接入待检区/冻结状态）；数据库物理列为 `inventory_status`。 | `v1_later` |
+| `issues` | `sourceId` | 记录生成出库单的源业务记录主键（如生产领料计划ID、发货计划ID）；数据库物理列为 `source_id`。 | `v1_later` |
+| `issues` | `sourceNo` | 记录源业务单单号快照；数据库物理列为 `source_no`。 | `v1_later` |
+| `issues` | `confirmedAt` | 确认审核出库的系统时间；数据库物理列为 `confirmed_at`。 | `v1_later` |
+| `issues` | `confirmedBy` | 确认审核出库的操作员；数据库物理列为 `confirmed_by`。 | `v1_later` |
+| `issue_items` | `itemCode` | 物品编码快照，冗余追溯使用；数据库物理列为 `item_code`。 | `v1_later` |
+| `issue_items` | `itemName` | 物品名称快照；数据库物理列为 `item_name`。 | `v1_later` |
 | `issue_items` | `unit` | 计量单位，用于校验。 | `v1_later` |
-| `issue_items` | `inventory_status` | 指定从哪种库存状态（如 available/held/scrapped）扣减库存。 | `v1_later` |
-| `quality_issues` | `warehouseId` | 品质异常库存当前所处的仓库ID外键。 | `v1_later` |
-| `quality_issues` | `locationId` | 品质异常库存当前所处的库位ID外键。 | `v1_later` |
-| `issue_actions` | `action_type` | 操作动作大类归化（如 freeze/unfreeze/scrap/close），方便报表统计。 | `v1_later` |
+| `issue_items` | `inventoryStatus` | 指定从哪种库存状态（如 available/held/scrapped）扣减库存；数据库物理列为 `inventory_status`。 | `v1_later` |
+| `quality_issues` | `warehouseId` | 品质异常库存当前所处的仓库ID外键；数据库物理列为 `warehouse_id`。 | `v1_later` |
+| `quality_issues` | `locationId` | 品质异常库存当前所处的库位ID外键；数据库物理列为 `location_id`。 | `v1_later` |
+| `issue_actions` | `actionType` | 操作动作大类归化（如 freeze/unfreeze/scrap/close），方便报表统计；数据库物理列为 `action_type`。 | `v1_later` |
 | `issue_actions` | `quantity` | 该处理动作涉及的具体数量。 | `v1_later` |
-| `issue_actions` | `related_transaction_id` | 关联解冻或报废时在库存台账里落账的流水ID，实现闭环追溯。 | `v1_later` |
-| `issue_actions` | `related_hold_id` | 关联对应的锁定冻结记录ID。 | `v1_later` |
-| `shipment_items` | `warehouse_id` | 明细行发货扣减的具体仓库ID，支持单头多库位发货。 | `v1_later` |
-| `shipment_items` | `location_id` | 明细行发货扣减的具体库位ID。 | `v1_later` |
+| `issue_actions` | `relatedTransactionId` | 关联解冻或报废时在库存台账里落账的流水ID，实现闭环追溯；数据库物理列为 `related_transaction_id`。 | `v1_later` |
+| `issue_actions` | `relatedHoldId` | 关联对应的锁定冻结记录ID；数据库物理列为 `related_hold_id` | `v1_later` |
+| `shipment_items` | `warehouseId` | 明细行发货扣减的具体仓库ID，支持单头多库位发货；数据库物理列为 `warehouse_id`。 | `v1_later` |
+| `shipment_items` | `locationId` | 明细行发货扣减的具体库位ID；数据库物理列为 `location_id`。 | `v1_later` |
 | `shipment_items` | `unit` | 发货数量的计量单位。 | `v1_later` |
-| `shipment_items` | `product_code` | 产品编码快照。 | `v1_later` |
-| `shipment_items` | `product_name` | 产品名称快照。 | `v1_later` |
-| `work_order_steps` | `process_code` | 工序编码快照，确保业务路线快照性。 | `v1_later` |
-| `work_order_steps` | `machine_code` | 锁定设备编码快照。 | `v1_later` |
+| `shipment_items` | `productCode` | 产品编码快照；数据库物理列为 `product_code`。 | `v1_later` |
+| `shipment_items` | `productName` | 产品名称快照；数据库物理列为 `product_name`。 | `v1_later` |
+| `work_order_steps` | `processCode` | 工序编码快照，确保业务路线快照性；数据库物理列为 `process_code`。 | `v1_later` |
+| `work_order_steps` | `machineCode` | 锁定设备编码快照；数据库物理列为 `machine_code`。 | `v1_later` |
 | `work_order_steps` | `operator` | 首选操作员快照/派发人。 | `v1_later` |
-| `work_order_steps` | `quality_required` | 该工序是否需要首检/巡检强品质控制。 | `v1_later` |
-| `operation_reports` | `workOrderId` | 关联工单ID，重命名修正。 | `v1_later` |
-| `operation_reports` | `machineId` | 用于关联实际执行加工的设备主数据ID。 | `v1_later` |
+| `work_order_steps` | `qualityRequired` | 该工序是否需要首检/巡检强品质控制；数据库物理列为 `quality_required`。 | `v1_later` |
+| `operation_reports` | `workOrderId` | 关联工单ID，重命名修正；数据库物理列为 `work_order_id`。 | `v1_later` |
+| `operation_reports` | `machineId` | 用于关联实际执行加工的设备主数据ID；数据库物理列为 `machine_id`。 | `v1_later` |
 | `inventory_balances` | `多批次库存追踪` | 支持按原材料批号/热处理炉号等多级批次追溯。 | `v2` |
 | `locations` | `多库位策略` | 支持系统自动推荐上架、拣货的库位策略。 | `v2` |
 | `operation_reports` | `PDA扫码日志明细` | 详细记录PDA每次扫码的信号强度、读取时间、RFID等硬件数据。 | `v2` |
