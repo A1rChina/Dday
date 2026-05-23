@@ -4,7 +4,7 @@
 
 | 状态 | 含义 |
 |---|---|
-| keep | 字段保留，当前字段名和语义基本可接受 |
+| keep | 字段保留，当前字段名 and 语义基本可接受 |
 | rename_later | 字段语义可用，但字段名不准确，后续需要改名 |
 | deprecated | 字段后续废弃，新逻辑不应继续依赖 |
 | need_add | V1 应该补充该字段，但本次不新增 |
@@ -65,7 +65,7 @@
 | `supplierName` | text | 供应商名称 | keep | 核心必填项。 |
 | `supplierShortName` | text | 供应商简称 | keep | 默认值为空字符串。 |
 | `contactPerson` | text | 联系人 | keep | 默认值为空字符串。 |
-| `contactPhone` | text | 联系电话 | keep | 默认值为空字符串。 |
+| `contactPhone` | text | 联系电话 | keep | 默认值为空字符串. |
 | `address` | text | 地址 | keep | 默认值为空字符串。 |
 | `defaultLeadTime` | integer | 默认采购周期（天数） | keep | 默认为 0。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
@@ -184,10 +184,10 @@
 | `created_at` | text | 创建时间 | keep | 标准蛇形命名，物理列一致。 |
 | `updated_at` | text | 更新时间 | keep | 标准蛇形命名，物理列一致。 |
 | `project_id` | text | 关联项目ID | keep | |
-| `party_id` | text | 关联往来单位ID | rename_later | 实际表示客户ID，应改名为 `customer_id` 关联 `customers`。 |
+| `party_id` | text | 关联往来单位ID | deprecated | 历史遗留关联，V1 建议完全弃用该客户关联，统一通过 `products.project_id -> projects.customer_id` 关联查询获取客户，避免数据不一致。 |
 | `project_code` | text | 冗余项目编码 | deprecated | 属于冗余字段，可直接通过 `project_id` 关联查询。 |
 | `factory` | text | 生产工厂名称 | rename_later | 字符串类型且默认“宜宾”，应替换为 `factory_id` 关联 `manufacturing_factories`。 |
-| `profile_code` | text | 默认型材编码 | rename_later | 字符串类型，代表默认主型材。应替换为外键 `default_material_id` 关联 `materials`。 |
+| `profile_code` | text | 默认型材编码 | deprecated | 型材默认代码以文本形式直存已废弃。主型材应通过 `product_materials` 表表达。如果后续新增 `product_materials.is_primary`，则 `is_primary = 1` 的物料为主型材；在未新增 `is_primary` 前，同一产品 active 状态下唯一一条 `product_materials` 记录视为主型材。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -200,18 +200,16 @@
 | `notes` | text | 否 | 备注 | `''` | keep |
 | `status` | text | 是 | 状态 | `'active'` (active / inactive) | keep |
 | `project_id` | text | 否 | 项目ID | 无 | keep |
-| `customer_id` | text | 是 | 关联客户ID | 无 | rename_later (由 `party_id` 改名) |
+| `party_id` | text | 否 | 关联往来单位ID（已废弃） | 无 | deprecated |
 | `factory_id` | text | 是 | 生产工厂ID | 无 | need_add |
-| `default_material_id` | text | 否 | 默认使用的型材物料ID | 无 | need_add |
-| `drawing_no` | text | 否 | 图纸号 | `''` | need_add |
-| `spec` | text | 否 | 规格型号 | `''` | need_add |
+| `profile_code` | text | 否 | 默认型材编码（已废弃） | 无 | deprecated |
 | `created_at` | text | 是 | 创建时间 | 当前时间戳 | keep |
 | `updated_at` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| 重复的产品-型材关系 | `products.profile_code` 与 `product_materials` BOM 关系表均可以维护型材，逻辑冲突 | 废弃 `products.profile_code`，全部以 `product_materials` 中的BOM数据作为物料消耗的事实源，产品表上仅保留推荐性质 of `default_material_id` | 是，排产时无法确定以哪个字段为准去检查物料库存 |
+| 重复的产品-型材关系 | `products.profile_code` 与 `product_materials` BOM 关系表均可以维护型材，逻辑冲突 | 废弃 `products.profile_code`，全部以 `product_materials` 中的BOM数据作为物料消耗的事实源。在未新增 `is_primary` 前，同一产品 active 状态下唯一一条 `product_materials` 记录视为主型材。 | 是，排产时无法确定以哪个字段为准去检查物料库存 |
 | 工艺路线以JSON字符串形式直存 | `process_route` 直存工序ID数组（例如 `["1","2"]`），不利于进行工序维度的联合查询和排程 | V1 阶段保持JSON以便于快速开发，但在工单生成时必须把当前的工艺内容进行快照保存 | 是，否则会导致全局工艺更改时，进行中的工单工序错乱 |
 
 ---
@@ -424,7 +422,7 @@
 #### 5. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| 未发货数量 `unshippedQuantity` 维护冲突 | 数据库中物理存了 `unshippedQuantity` 字段，且每次发货都需要手动更新 `deliveredQuantity` 和 `unshippedQuantity` | 废弃 `unshippedQuantity` 字段的物理存储，改为通过 SQL 动态计算 (quantity - shipped_quantity)，防止并发更新时数据不对齐 | 否，仅涉及计算优化 |
+| 未发货数量 `unshippedQuantity` 维护冲突 | 数据库中物理存了 `unshippedQuantity` 字段，且每次发货都需要手动更新 `deliveredQuantity` 和 `unshippedQuantity` | 废弃 `unshippedQuantity` 字段 the physical storage，改为通过 SQL 动态计算 (quantity - shipped_quantity)，防止并发更新时数据不对齐 | 否，仅涉及计算优化 |
 | 生产计划目前未强回写此明细行 | 排产和完工合格数没有更新回 `demand_lines` 的对应统计字段 | 当生产计划发布和工单完工时，应调用明细行服务，回写 `planned_quantity` 和 `produced_quantity` | 是，直接影响销售订单执行进度的跟踪统计 |
 
 ---
@@ -441,10 +439,10 @@
 | `code` | text | 计划单号 | keep | 唯一。 |
 | `title` | text | 计划标题 | keep | |
 | `planDate` | text | 计划排程日期 | keep | |
-| `orderLineId` | text | 关联订单行ID | deprecated | 字段语义混乱，历史上可能存旧订单行或需求行。V1 新逻辑不再依赖此字段，统一通过 `production_demand_links` 关联 `demand_lines`。 |
-| `projectCode` | text | 关联项目编码 | rename_later / deprecated | 冗余文本，应通过 `projectId` 联查。 |
-| `productCode` | text | 关联产品编码 | rename_later / deprecated | 冗余文本，应通过 `productId` 联查。 |
-| `materialCode` | text | 关联型材编码 | rename_later / deprecated | 冗余文本，应通过 `materialId` 联查。 |
+| `orderLineId` | text | 关联行ID | deprecated | 字段语义混乱，历史上可能存旧订单行或需求行。V1 新逻辑不再依赖此字段，统一通过 `production_demand_links` 关联 `demand_lines`。 |
+| `projectCode` | text | 关联项目编码 | keep | 生产计划生成时的历史快照字段，用于列表展示和历史追溯，不作为主数据唯一事实源。 |
+| `productCode` | text | 关联产品编码 | keep | 生产计划生成时的历史快照字段，用于列表展示和历史追溯，不作为主数据唯一事实源。 |
+| `materialCode` | text | 关联型材编码 | keep | 生产计划生成时的历史快照字段，用于列表展示和历史追溯，不作为主数据唯一事实源。 |
 | `planPeriod` | text | 计划周期 | keep | 格式如 2026-05。 |
 | `projectId` | text | 项目ID | keep | |
 | `customerId` | text | 客户ID | keep | |
@@ -472,11 +470,13 @@
 | `title` | text | 是 | 计划标题 | 无 | keep |
 | `planDate` | text | 是 | 计划日期 | 无 | keep |
 | `orderLineId` | text | 否 | 关联行ID（已废弃） | 无 | deprecated |
-| `demand_line_id` | text | 否 | 关联单需求行时使用该字段 | 无 | need_add |
 | `projectId` | text | 否 | 项目ID | 无 | keep |
+| `projectCode` | text | 否 | 项目编码快照 | `''` | keep |
 | `customerId` | text | 否 | 客户ID | 无 | keep |
 | `productId` | text | 是 | 产品ID | 无 | keep |
+| `productCode` | text | 否 | 产品编码快照 | `''` | keep |
 | `materialId` | text | 否 | 主消耗型材ID | 无 | keep |
+| `materialCode` | text | 否 | 原材料编码快照 | `''` | keep |
 | `factory_id` | text | 是 | 计划生产工厂ID | 无 | need_add |
 | `plan_type` | text | 是 | 计划排产类型 | `'normal'` (normal / rework / stock) | need_add |
 | `plannedQuantity` | integer | 是 | 计划排产数量 | `0` | keep |
@@ -498,7 +498,7 @@
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
 | `planQty` 与 `plannedQuantity` 重合 | 同时定义了这两个整型字段且写入相同的值 | 物理废弃 `planQty`，保留 `plannedQuantity`，防止开发统计接口时取错字段 | 否 |
-| 多行合并排产的单一外键歧义 | 计划中保留了 `orderLineId` (单行外键)，但实际还存在 `production_demand_links` 表达多行关系 | 将单行外键 `orderLineId` 转化为非必填的 `demand_line_id`，若是由多需求行合并而成则该字段置空，强制在 `production_demand_links` 中存子明细 | 是，关系到排产时的分配和工单生成逻辑 |
+| 多行合并排产的单一外键歧义 | 计划中保留了 `orderLineId` (单行外键)，但实际还存在 `production_demand_links` 表达多行关系 | 将单行外键 `orderLineId` 转化为非必填的并设为 `deprecated`，强制在 `production_demand_links` 中存储子明细。 | 是，关系到排产时的分配和工单生成逻辑 |
 
 ---
 
@@ -513,7 +513,7 @@
 | `id` | text | 工单ID | keep | 主键。 |
 | `code` | text | 工单单号 | keep | 唯一。 |
 | `productionPlanId` | text | 关联生产计划ID | keep | 允许为空，但正常从计划派发 |
-| `orderLineId` | text | 关联订单明细行ID | rename_later | 字段名不准确，当前指向 `demandLines.id`，后续应改名 `demand_line_id` |
+| `orderLineId` | text | 关联订单明细行ID | deprecated | 历史遗留字段，新逻辑不再依赖。 |
 | `productId` | text | 产品ID | keep | |
 | `materialId` | text | 型材/物料ID | keep | 工单主要领用的物料ID |
 | `customerName` | text | 客户名称 | rename_later / deprecated | 冗余存储，应通过关联查询，或改名 `customer_id` |
@@ -540,7 +540,7 @@
 | `id` | text | 是 | 工单主键 | 无 | keep |
 | `code` | text | 是 | 工单单号 | 无 | keep |
 | `production_plan_id` | text | 否 | 生产计划ID | 无 | rename_later (由 `productionPlanId` 重命名) |
-| `demand_line_id` | text | 否 | 需求行明细ID | 无 | rename_later (由 `orderLineId` 重命名) |
+| `orderLineId` | text | 否 | 关联订单明细行ID（已废弃） | 无 | deprecated |
 | `productId` | text | 是 | 产品ID | 无 | keep |
 | `materialId` | text | 否 | 主型材物料ID | 无 | keep |
 | `factory_id` | text | 是 | 工厂ID | 无 | need_add |
@@ -567,7 +567,8 @@
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| `completedQuantity` 与 `goodQuantity` 业务冲突 | 报工流程更新了 `goodQuantity` 等，但最后工序又回写了 `completedQuantity` | 明确：`goodQuantity` 是过程合格数的汇总累加；`completedQuantity` 是最后一道完工工序的产出合格数（即最终可入库的产成品数量）。需要重新校准报工更新逻辑 | 是，影响良率和工单完成率指标计算 |
+| `completedQuantity` 与 `goodQuantity` 业务冲突 | 报工流程更新了 `goodQuantity` 等，但最后工序又回写了 `completedQuantity` | 明确：`goodQuantity` 是过程合格数的汇总累加；`completedQuantity` 是最后一道完工工序的产出合格数（即最终可入库的产成品数量）。需要重新校准报工更新逻辑。 | 是，影响良率和工单完成率指标计算 |
+| 工单明细到需求明细的关联追溯 | 工单中已废弃单需求明细行 `orderLineId` 字段 | 工单追溯需求行统一走以下路径：`work_orders.productionPlanId -> production_plans.id -> production_demand_links.productionPlanId -> demand_lines.id`。 | 是，涉及车间报工对销售需求的追溯报表统计 |
 | 缺乏工艺路线执行快照 | 直接引用 `products.process_route`，如果产品工艺路线在生产中途被修改，会导致已开工的工单步骤发生混乱 | 新增 `process_route_snapshot` 字段，工单生成时锁死当前工艺路线，后续执行以此快照为准 | 是，影响工艺的严谨性和历史回溯 |
 
 ---
@@ -606,17 +607,17 @@
 |---|---|---|---|---|---|
 | `id` | text | 是 | 库存主键ID | 无 | keep |
 | `itemId` | text | 是 | 产品ID / 物料ID | 无 | keep |
-| `itemCode` | text | 否 | 物料编码缓存 | `''` | keep |
-| `itemName` | text | 否 | 物料名称缓存 | `''` | keep |
+| `itemCode` | 否 | 物料编码缓存 | `''` | keep | |
+| `itemName` | 否 | 物料名称缓存 | `''` | keep | |
 | `itemType` | text | 是 | 物品类型 | `'material'` (material/product) | keep |
 | `projectId` | text | 否 | 关联项目ID | 无 | keep |
-| `projectCode` | text | 否 | 项目编码缓存 | `''` | keep |
+| `projectCode` | 否 | 项目编码缓存 | `''` | keep | |
 | `customerId` | text | 否 | 关联客户ID | 无 | keep |
-| `customerName` | text | 否 | 客户名称缓存 | `''` | keep |
+| `customerName` | 否 | 客户名称缓存 | `''` | keep | |
 | `warehouseId` | text | 是 | 仓库ID | 无 | keep |
-| `warehouseName` | text | 否 | 仓库名称缓存 | `''` | keep |
+| `warehouseName` | 否 | 仓库名称缓存 | `''` | keep | |
 | `locationId` | text | 否 | 库位ID | 无 | keep |
-| `locationCode` | text | 否 | 库位编码缓存 | `''` | keep |
+| `locationCode` | 否 | 库位编码缓存 | `''` | keep | |
 | `inventoryStatus` | text | 是 | 库存状态枚举 | `'available'` | keep |
 | `quantity` | integer | 是 | 当前结存数量 | `0` | keep |
 | `unit` | text | 是 | 计量单位 | `'pcs'` | keep |
@@ -641,7 +642,7 @@
 | 字段 | 当前类型 | 当前含义 | 状态 | 备注 |
 |---|---|---|---|---|
 | `id` | text | 流水ID | keep | 主键 |
-| `transactionNo` | text | 变动流水号 | keep | 唯一，以 ITX 为前缀的单号 |
+| `transactionNo` | text | 变动流水号 | keep | 唯一，以 ITX 为前缀 of 单号 |
 | `itemId` | text | 物品ID | keep | 物料或产品ID |
 | `itemCode` | text | 物品编码 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
 | `itemName` | text | 物品名称 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
@@ -675,17 +676,17 @@
 | `id` | text | 是 | 流水ID | 无 | keep |
 | `transactionNo` | text | 是 | 流水编码 | 无 | keep |
 | `itemId` | text | 是 | 产品ID / 物料ID | 无 | keep |
-| `itemCode` | text | 否 | 物料编码快照 | `''` | keep |
-| `itemName` | text | 否 | 物料名称快照 | `''` | keep |
+| `itemCode` | 否 | 物料编码快照 | `''` | keep | |
+| `itemName` | 否 | 物料名称快照 | `''` | keep | |
 | `itemType` | text | 是 | 物品类型 | `'material'` | keep |
 | `projectId` | text | 否 | 关联项目ID | 无 | keep |
-| `projectCode` | text | 否 | 项目编码快照 | `''` | keep |
+| `projectCode` | 否 | 项目编码快照 | `''` | keep | |
 | `customerId` | text | 否 | 关联客户ID | 无 | keep |
-| `customerName` | text | 否 | 客户名称快照 | `''` | keep |
+| `customerName` | 否 | 客户名称快照 | `''` | keep | |
 | `warehouseId` | text | 是 | 仓库ID | 无 | keep |
-| `warehouseName` | text | 否 | 仓库名称快照 | `''` | keep |
+| `warehouseName` | 否 | 仓库名称快照 | `''` | keep | |
 | `locationId` | text | 否 | 库位ID | 无 | keep |
-| `locationCode` | text | 否 | 库位编码快照 | `''` | keep |
+| `locationCode` | 否 | 库位编码快照 | `''` | keep | |
 | `transactionType` | text | 是 | 变动类型枚举 | 无 | keep |
 | `quantityChange` | integer | 是 | 变动数量 (入库为正，出库为负) | 无 | keep |
 | `beforeQuantity` | integer | 是 | 变动前结存量 | `0` | keep |
@@ -715,11 +716,11 @@
 |---|---|---|---|
 | `customer_demands`, `demand_lines`, `work_orders`, `inventory_balances`, `inventory_transactions` | `customerName` / `customer_name` | 冗余存储客户名称字符串。如果客户在主数据中更名，会导致各表数据不同步。 | 业务单据表、库存流水表和结存表均作为历史快照或查询缓存保留，标记为 `keep`，不作为主数据唯一事实源。 |
 | `products`, `demand_lines`, `production_plans`, `work_orders`, `inventory_balances`, `inventory_transactions` | `projectCode` / `projectName` | 冗余存储项目的 Code 和 Name 文本。 | 作为历史快照或查询缓存保留，标记为 `keep`。 |
-| `projects`, `products` | `party_id` | 指向旧的往来单位表（`parties`），但现在客户已独立至 `customers` 表，容易导致关联混乱。 | 重命名该字段为 `customer_id`，并建立与 `customers.customerId` 的强外键关系。 |
+| `projects`, `products` | `party_id` | 指向旧的往来单位表（`parties`），但现在客户已独立至 `customers` 表，容易导致关联混乱。 | 统一通过项目和客户关联（`products.project_id -> projects.customer_id`），弃用产品上的 `party_id`（改名/废弃）。 |
 | `products` | `factory` | 生产工厂存为文本 `'宜宾'`，而系统已存在工厂主数据表 `manufacturing_factories`。 | 废弃文本 `factory` 字段，增加 `factory_id` 外键关联工厂主数据。 |
-| `products` | `profile_code` | 型材默认代码以文本形式直存，未建立与 `materials` 的主外键关联。 | 改名为 `default_material_id`，关联 `materials.id`。真正的消耗关系交由 `product_materials` (BOM表) 决定。 |
+| `products` | `profile_code` | 型材默认代码以文本形式直存已废弃。 | 主型材关联统一走 `product_materials` BOM 表（以 `is_primary = 1` 标识主型材），避免产品表上双重维护。 |
 | `production_plans` | `planQty` & `plannedQuantity` | 同一张表里同时存在这两个含义一模一样的整型字段，在代码中同时被写入相同的值。 | 废弃 `planQty` 字段，代码中统一使用 `plannedQuantity`。 |
-| `work_orders` | `goodQuantity` & `completedQuantity` | 这两个字段在报工和结单时语义模糊。`completedQuantity` 既被用作合格汇总，又与 `goodQuantity` 区分不明。 | 明确定义：`goodQuantity` 代表各工序过程报工合格数的累加值；`completedQuantity` 代表最终末工序入库合格数。建议将 `completedQuantity` 改名为 `finished_quantity`。 |
+| `work_orders` | `goodQuantity` & `completedQuantity` | 这两个字段在报工和结单时语义模糊。 | 明确定义：`goodQuantity` 代表各工序过程报工合格数的累加值；`completedQuantity` 代表最终末工序入库合格数。建议将 `completedQuantity` 改名为 `finished_quantity`。 |
 
 ---
 
@@ -727,7 +728,6 @@
 
 | 表 | 建议新增字段 | 原因 | 优先级 |
 |---|---|---|---|
-| `products` | `customer_id` | 用于取代旧的 `party_id`，明确产品所属的客户归属。 | `lock_before_v1` |
 | `products` | `factory_id` | 取代硬编码的工厂文本，使产品能指派给不同的实体工厂。 | `lock_before_v1` |
 | `demand_lines` | `project_id` | 销售明细行必须强外键关联到项目，而非冗余 projectCode 文本。 | `lock_before_v1` |
 | `production_plans` | `factory_id` | 计划指派的具体加工工厂。 | `lock_before_v1` |
@@ -735,7 +735,6 @@
 | `work_orders` | `process_route_snapshot` | 锁死开工时的工艺路线快照，防止全局产品工艺修改波及执行中工单。 | `lock_before_v1` |
 | `customers` | `customer_code` | 客户需要有简短易读的唯一编码（如 CUST-001）用于前台搜索和导入匹配。 | `v1_later` |
 | `profile_suppliers` | `supplier_code` | 原材料采购和入库需要通过易读的供应商编码识别，而非仅靠长 UUID。 | `v1_later` |
-| `products` | `default_material_id` | 明确关联默认的主型材物料记录。 | `v1_later` |
 | `products` | `drawing_no` | CNC加工件交付给客户前，必须核对具体的图纸版本号。 | `v1_later` |
 | `materials` | `supplier_id` | 原材料默认供应商，以便做采购建议和到货跟踪。 | `v1_later` |
 | `materials` | `default_lead_time` | 原材料默认采购提前期，供MRP齐套性算期使用。 | `v1_later` |
@@ -769,7 +768,7 @@
 |---|---|---|---|
 | **1. 废弃 parties 表带来的历史数据转换** | `projects`, `products`, `customers` | V1 全面启用 `customers` 作为唯一客户主数据，将原先在 `parties` 中具有 `'customer'` 类型的记录清洗并迁移到 `customers` 表，删除 `parties` 的逻辑依赖。 | 是，涉及系统能否平滑升级。 |
 | **2. 工单完工数量 completedQuantity 的精确业务定义** | `work_orders` | 明确定义：`goodQuantity` 为各工序扫码合格的中间件累计，`completedQuantity` 仅指末道工序报工产出的最终合格品数量。该数量是触发产成品入库的唯一基准。 | 是，直接影响车间产出统计和报工准确度。 |
-| **3. 计划与需求行的唯一可信关联** | `production_plans` | V1 中生产计划与需求行的唯一可信关联关系为 `production_demand_links`。即使单个需求行生成单个生产计划，也必须写入 `production_demand_links`。废弃单行关联外键。 | 是，直接决定排产业务服务的核心处理逻辑。 |
+| **3. 计划与需求行的唯一可信关联** | `production_plans` | V1 中生产计划与需求行的唯一可信关联关系为 `production_demand_links`。即使单个需求行生成单个生产计划，也必须写入 `production_demand_links`。废弃单计划行关联外键。 | 是，直接决定排产业务服务的核心处理逻辑。 |
 | **4. 生产工厂字段 factory 从文本向 ID 外键重构** | `products`, `production_plans`, `work_orders` | 将上述表中所有的 `factory` 文本列逐步改造为 `factory_id`，强制在 `manufacturing_factories` 中配置并读取，清除 `'宜宾'` 等硬编码默认值。 | 是，决定了多厂区（宜宾、重庆、外协）业务拆分后的权限与数据隔离。 |
 | **5. 运行中工单的工艺路线防波机制** | `work_orders` | 引入 `process_route_snapshot` 字段。工单在“发布（released）”状态时，克隆并固化产品当前的 `process_route` JSON，后续执行完全依赖快照。 | 是，防止中途修改工艺导致的工序执行及报工错误。 |
 | **6. 库存结存及流水表快照与缓存字段** | `inventory_balances`, `inventory_transactions` | 快照与缓存字段状态标记为 `keep`，作为历史查询及追溯依据，禁止随意废弃。但需在 `InventoryLedgerService` 中建立一致的写入维护规范。 | 是，影响数据完整度。 |
