@@ -11,7 +11,7 @@
 
 - **架构优先固定**: Dday V1 采用轻量 MES / ERP 模型。数据库结构优先固定，业务开发必须围绕既定表结构进行。
 - **防止重复建表**: 不允许同一业务对象重复建表。不允许 Codex 随功能开发自行新增表。
-- **库存动作流痕**: 不允许业务模块直接修改库存余额（`inventory_balances`）。所有库存变化必须通过 `InventoryLedgerService` 统一写入库存余额和库存流水。
+- **库存动作留痕**: 不允许业务模块直接修改库存余额（`inventory_balances`）。所有库存变化必须通过 `InventoryLedgerService` 统一写入库存余额和库存流水。
 - **快照与事实分离**: 业务单据允许保留历史快照字段，例如 `productCode`、`productName`、`customerName`、`itemCode`、`itemName`。主数据是事实源，业务单据中的名称和编码是历史快照，不作为唯一事实源。
 - **批次追踪弱化**: 当前 V1 不强制批次追踪，`batchNo` 作为选填追溯字段保留。
 
@@ -221,7 +221,7 @@ Dday V1 的核心业务单据及状态流转路径如下：
 | `status` | text | 是 | 状态 | `'active'` (active / inactive) | keep |
 | `projectId` | text | 否 | 项目ID；数据库物理列为 `project_id` | 无 | keep |
 | `partyId` | text | 否 | 关联往来单位ID（已废弃） | 无 | deprecated |
-| `factoryId` | text | 是 | 生产工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
+| `factoryId` | text | 后续新增时必填 | 生产工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
 | `profileCode` | text | 否 | 默认型材编码（已废弃） | 无 | deprecated |
 | `drawingNo` | text | 后续新增时选填 | 图纸版本号；数据库物理列为 `drawing_no` | `''` | need_add (v1_later) |
 | `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
@@ -294,7 +294,7 @@ Dday V1 的核心业务单据及状态流转路径如下：
 | `code` | text | 是 | 明细行编码 | 无 | keep |
 | `customerId` | text | 是 | 客户ID；数据库物理列为 `customer_id` | 无 | keep |
 | `customerName` | text | 否 | 客户名称快照；数据库物理列为 `customer_name` | `''` | keep |
-| `projectId` | text | 是 | 关联项目ID；数据库物理列为 `project_id` | 无 | need_add (v1_later) |
+| `projectId` | text | 后续新增时必填 | 关联项目ID；数据库物理列为 `project_id` | 无 | need_add (v1_later) |
 | `productId` | text | 是 | 产品ID；数据库物理列为 `product_id` | 无 | keep |
 | `productCode` | text | 否 | 产品编码快照；数据库物理列为 `product_code` | `''` | keep |
 | `productName` | text | 否 | 产品名称快照；数据库物理列为 `product_name` | `''` | keep |
@@ -330,7 +330,7 @@ Dday V1 的核心业务单据及状态流转路径如下：
 | `productCode` | text | 否 | 产品编码快照；数据库物理列为 `product_code` | `''` | keep |
 | `materialId` | text | 否 | 主消耗型材ID；数据库物理列为 `material_id` | 无 | keep |
 | `materialCode` | text | 否 | 原材料编码快照；数据库物理列为 `material_code` | `''` | keep |
-| `factoryId` | text | 是 | 计划生产工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
+| `factoryId` | text | 后续新增时必填 | 计划生产工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
 | `planType` | text | 后续新增时必填 | 计划排产类型；数据库物理列为 `plan_type` | `'normal'` | need_add (v1_later) |
 | `plannedQuantity` | integer | 是 | 计划排产数量；数据库物理列为 `planned_quantity` | `0` | keep |
 | `dueDate` | text | 是 | 截止交期；数据库物理列为 `due_date` | 无 | keep |
@@ -358,7 +358,7 @@ Dday V1 的核心业务单据及状态流转路径如下：
 | `orderLineId` | text | 否 | 关联订单明细行ID（已废弃）；数据库物理列为 `order_line_id` | 无 | deprecated |
 | `productId` | text | 是 | 产品ID；数据库物理列为 `product_id` | 无 | keep |
 | `materialId` | text | 否 | 主型材物料ID；数据库物理列为 `material_id` | 无 | keep |
-| `factoryId` | text | 是 | 工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
+| `factoryId` | text | 后续新增时必填 | 工厂ID；数据库物理列为 `factory_id` | 无 | need_add (v1_later) |
 | `plannedQuantity` | integer | 是 | 计划生产数；数据库物理列为 `planned_quantity` | `0` | keep |
 | `reportedQuantity` | integer | 是 | 已报工总数；数据库物理列为 `reported_quantity` | `0` | keep |
 | `goodQuantity` | integer | 是 | 合格品数；数据库物理列为 `good_quantity` | `0` | keep |
@@ -736,7 +736,7 @@ Dday V1 的核心业务单据及状态流转路径如下：
 | `manualReason` | text | 否 | 手工填报原因；数据库物理列为 `manual_reason` | `''` | keep |
 | `remark` | text | 否 | 备注 | `''` | keep |
 | `createdBy` | text | 否 | 填报人；数据库物理列为 `created_by` | `''` | keep |
-| `createdAt` | text | 是 | 填报时间；数据库物理列为 `created_at` | 当前时间戳 | keep
+| `createdAt` | text | 是 | 填报时间；数据库物理列为 `created_at` | 当前时间戳 | keep |
 
 ---
 
@@ -918,10 +918,18 @@ Dday V1 的核心业务单据及状态流转路径如下：
     *   `scrapped`: 判定报废
     *   `closed`: 关闭锁定
     *   `cancelled`: 锁定取消
-*   **`receipts.status`** & **`issues.status`** & **`shipments.status`**:
+*   **`receipts.status`**:
     *   `draft`: 草稿
     *   `confirmed`: 确认审核落账
     *   `cancelled`: 单据作废
+*   **`issues.status`**:
+    *   `draft`: 草稿
+    *   `confirmed`: 确认审核落账
+    *   `cancelled`: 单据作废
+*   **`shipments.status`**:
+    *   `created`: 发货单已创建
+    *   `confirmed`: 发货审核确认
+    *   `cancelled`: 发货单作废
 
 ---
 
@@ -938,7 +946,7 @@ Dday V1 的核心业务单据及状态流转路径如下：
 - `products` 表示 CNC 加工后交付给客户的产品。
 - `materials` 表示型材 / 原材料 / 辅料。
 - 型材在主数据中统一作为 `materials` 维护，其 `type` 统一使用 `'profile'`。
-- `product_materials` BOM 关联表是产品与物料消耗关系的事实唯一事实源。
+- `product_materials` BOM 关联表是产品与物料消耗关系的唯一事实源。
 - 不新增 `products.defaultMaterialId` 字段。
 - `products.profile_code` 后续废弃，不作为唯一的型材来源。
 
