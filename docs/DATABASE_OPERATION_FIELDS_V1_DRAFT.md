@@ -39,7 +39,7 @@
 | `name` | text | 是 | 仓库名称 | 无 | keep |
 | `type` | text | 是 | 仓库类型 | `'normal'` | keep |
 | `status` | text | 是 | 仓库启用状态 | `'active'` | keep |
-| `factory_id` | text | 是 | 关联所属工厂ID | 无 | need_add (lock_before_v1) |
+| `factory_id` | text | 是 | 关联所属工厂ID | 无 | need_add (v1_later) |
 | `is_virtual` | integer | 后续新增时选填 | 是否为虚拟/逻辑仓 (0: 否, 1: 是) | `0` | need_add (v1_later) |
 | `sort_order` | integer | 后续新增时选填 | 排序号 | `0` | need_add (v1_later) |
 | `remark` | text | 否 | 备注 | `''` | keep |
@@ -443,7 +443,7 @@
 #### 5. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| 冻结触发时异常单状态与库存状态的级联保障 | 当质量单状态置为 `frozen` 时，必须保证在 `inventory_holds` 中生成生效的冻结记录，且 `inventoryLockId` 不能为空。若存在未处理的剩余冻结数量，质量单在业务规则上不得强行 `closed`（关闭前必须先解冻或报废） | 统一判定解冻/报废完结后再允许结单 | 是
+| 冻结触发时异常单状态与库存状态的级联保障 | 当质量单状态置为 `frozen` 时，必须保证在 `inventory_holds` 中生成生效的冻结记录，且 `inventoryLockId` 不能为空。若存在未处理的剩余冻结数量，质量单在业务规则上不得强行 `closed`（关闭前必须先解冻或报废） | 统一判定解冻/报废完结后再允许结单 | 是 |
 
 ---
 
@@ -576,7 +576,7 @@
 | `productId` | text | 是 | 关联发货产品ID | 无 | keep |
 | `quantity` | integer | 是 | 发货出库数量 | 无 | keep |
 | `batchNo` | text | 是 | 发货批次号 | 无 | keep |
-| `demand_line_id` | text | 是 | 关联需求计划行ID | 无 | need_add (lock_before_v1) |
+| `demandLineId` | text | 是 | 关联需求计划行ID (数据库物理列应为 `demand_line_id`) | 无 | need_add (lock_before_v1) |
 | `warehouse_id` | text | 后续新增时选填 | 扣减库存仓库ID | 无 | need_add (v1_later) |
 | `location_id` | text | 后续新增时选填 | 扣减库存库位ID | 无 | need_add (v1_later) |
 | `unit` | text | 后续新增时选填 | 单位 | `'pcs'` | need_add (v1_later) |
@@ -587,7 +587,7 @@
 #### 5. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| 明细行级缺失需求行 ID 的致命漏洞 | 当前字段审计里只有旧订单的 `orderItemId`，没有关联新需求明细行 `demand_line_id`，无法实现回写发货数 | 必须在 V1 锁库前新增 `demand_line_id` 强外键关联且必填，确保发货能精确回写需求计划 | 是 |
+| 明细行级缺失需求行 ID 的致命漏洞 | 当前字段审计里只有旧订单的 `orderItemId`，没有关联新需求明细行 `demandLineId`，无法实现回写发货数 | 必须在 V1 锁库前新增 `demandLineId` 强外键关联且必填，确保发货能精确回写需求计划（数据库物理列应为 `demand_line_id`） | 是 |
 
 ---
 
@@ -629,7 +629,6 @@
 | `scrapQuantity` | integer | 是 | 工序报废数 | `0` | keep |
 | `status` | text | 是 | 工序执行状态 | `'pending'` | keep |
 | `machineId` | text | 否 | 分配的物理机器ID | 无 | keep |
-| `good_quantity` | integer | 后续新增时选填 | 建议不予新增，与 completedQuantity 功能冲突 | `0` | need_review |
 | `reported_quantity` | integer | 后续新增时选填 | 该工序累积报工总数 | `0` | need_review |
 | `process_code` | text | 后续新增时选填 | 工序编码快照 | `''` | need_add (v1_later) |
 | `machine_code` | text | 后续新增时选填 | 机器编码快照 | `''` | need_add (v1_later) |
@@ -655,7 +654,9 @@
 ### 十三、operation_reports
 
 #### 1. 业务定位
-`operation_reports` 是工序报工记录的事实表（报工日志）。车间现场每次进行 PDA 扫码、手动录入、翻工报工或报废申报，都必须生成一条流水事实。该表本身是过程记录，并不直接改变库存，但末道工序提交的合格报工数（`goodQty`）可以触发工单整体完工结单，并引发产成品标准入库的流程。
+`operation_reports` 是工序报工记录的事实表（报工日志）。车间现场每次进行 PDA 扫码、手动录入、翻工报工或报废申报，都必须生成一条流水事实。该表本身是过程记录，并不直接改变库存。末道工序合格报工后，应优先生成成品入库建议单或待确认入库单，状态为 `draft`。仓库确认后，`receipts.status` 才能变为 `confirmed`，并由库存服务写入 `inventory_transactions` 和 `inventory_balances`。
+
+型材库存扣减优先发生在生产领料 / 投料确认环节。如果 V1 暂时没有独立领料流程，可以在首工序报工确认时按 BOM 扣减，但必须设置防重扣机制，不能在每次报工时重复扣减。
 
 #### 2. 当前字段审计
 | 字段 | 当前类型 | 当前含义 | 状态 | 备注 |
@@ -738,10 +739,10 @@
 
 | 表 | 建议新增字段 | 原因 | 优先级 |
 |---|---|---|---|
-| `warehouses` | `factory_id` | 仓库必须明确归属于哪个工厂，以便按工厂组织数据隔离。 | `lock_before_v1` |
 | `receipt_items` | `item_type` | 区分入库明细记录的是原材料(material)还是产品(product)以关联正确的表。 | `lock_before_v1` |
 | `issue_items` | `item_type` | 区分出库明细记录是原材料(material)还是产品(product)。 | `lock_before_v1` |
-| `shipment_items` | `demand_line_id` | 核心发货追溯外键，确保发货扣减时精准回写销售需求行数量。 | `lock_before_v1` |
+| `shipment_items` | `demandLineId` | 核心发货追溯外键，确保发货扣减时精准回写销售需求行数量（数据库物理列应为 `demand_line_id`）。 | `lock_before_v1` |
+| `warehouses` | `factory_id` | 仓库必须明确归属于哪个工厂，以便按工厂组织数据隔离。 | `v1_later` |
 | `warehouses` | `is_virtual` | 标识是否为虚拟/逻辑仓库（如虚拟在途仓、外协虚拟仓）。 | `v1_later` |
 | `warehouses` | `sort_order` | 排序号，控制前台仓库列表展示顺序。 | `v1_later` |
 | `locations` | `warehouse_id` | 库位强外键关联到仓库表，逐步替代原 `warehouseCode`。 | `v1_later` |
@@ -810,9 +811,9 @@
 | **2. locationCode 是否在 V1 保留，还是迁移到 locationId** | `inventory_balances`, `inventory_transactions`, `quality_issues`, `shipments` | V1 保持现状，V1_later 统一改为 `locationId` 物理外键设计。 | 是 |
 | **3. quality_issues.freezeId 是否废弃，只保留 inventoryLockId** | `quality_issues` | 彻底弃用 `freezeId` 并标记为 `deprecated`，强关联锁定表唯一使用 `inventoryLockId` 字段。 | 是 |
 | **4. shipments 头字段是否保留 productId/quantity/batchNo** | `shipments` | 发货单多品发货时统一将明细写入 `shipment_items` 并置空单头物品字段，单头字段在 V1_later 中正式废弃。 | 是 |
-| **5. shipment_items 是否必须新增 demand_line_id** | `shipment_items` | 必须新增 `demand_line_id` (lock_before_v1) 用以保证销售交付出库后能够准确回写销售明细数量。 | 是 |
+| **5. shipment_items 是否必须新增 demandLineId** | `shipment_items` | 必须新增 `demandLineId` (lock_before_v1) 用以保证销售交付出库后能够准确回写销售明细数量（数据库物理列应为 `demand_line_id`）。 | 是 |
 | **6. operation_reports.productionOrderId 是否应改为 workOrderId** | `operation_reports` | V1_later 中重命名为 `workOrderId` 并强绑定派工工单表，目前可加兼容处理。 | 是 |
 | **7. operation_reports.operationId 是否指向工序主数据，还是工单步骤** | `operation_reports` | 应当指向 `work_order_steps.id`，并在底层逻辑中加入校验，确保对应步骤确属该工单。 | 是 |
 | **8. work_order_steps.completedQuantity 是否等同于合格数量** | `work_order_steps` | 明确为过程报工合格完工量累计，不应该在步骤上重复新增 `good_quantity`。 | 是 |
-| **9. 末工序报工是否自动触发成品入库** | `operation_reports`, `receipts` | 末道工序合格报工确认后，应自动在系统内创建已确认（confirmed）的成品入库单头和明细，完成扣在制品增成品实时入库。 | 是 |
-| **10. 报工时是否自动扣减型材库存** | `operation_reports`, `issues` | 报工落账同时，系统应依据产品主 BOM 消耗，自动扣减该型材的可用库存（产生 `production_issue` 流水变动）。 | 是 |
+| **9. 末工序报工是否自动触发成品入库** | `operation_reports`, `receipts` | 末道工序合格报工后，应优先生成成品入库建议单或待确认入库单，状态为 `draft`。仓库确认后，`receipts.status` 才能变为 `confirmed`，并由库存服务写入 `inventory_transactions` 和 `inventory_balances`。 | 是 |
+| **10. 报工时是否自动扣减型材库存** | `operation_reports`, `issues` | 型材库存扣减优先发生在生产领料 / 投料确认环节。如果 V1 暂时没有独立领料流程，可以在首工序报工确认时按 BOM 扣减，但必须设置防重扣机制，不能在每次报工时重复扣减。 | 是 |
