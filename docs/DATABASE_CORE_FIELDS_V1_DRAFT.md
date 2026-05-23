@@ -29,8 +29,8 @@
 | `contactPhone` | text | 联系电话 | keep | 默认值为空字符串。 |
 | `deliveryAddress` | text | 默认送货地址 | keep | 默认值为空字符串。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
-| `createdAt` | text | 创建时间 | rename_later | TS定义中为驼峰命名，应统一为蛇形 `created_at`。 |
-| `updatedAt` | text | 更新时间 | rename_later | TS定义中为驼峰命名，应统一为蛇形 `updated_at`。 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
+| `updatedAt` | text | 更新时间 | keep | 数据库物理列已通过 Drizzle 映射为 `updated_at`，TS 属性名暂不修改。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -43,14 +43,13 @@
 | `contactPhone` | text | 否 | 联系电话 | `''` | keep |
 | `deliveryAddress` | text | 否 | 默认送货地址 | `''` | keep |
 | `status` | text | 是 | 状态 | `'active'` (active / inactive) | keep |
-| `created_at` | text | 是 | 创建时间 | 当前时间戳 | rename_later |
-| `updated_at` | text | 是 | 更新时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
+| `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
 | 缺失客户编码字段 | 当前没有针对客户的业务编码（如 `customer_code`），只依赖 UUID 类型的 `customerId` | 在主数据中补充 `customer_code`，以便业务员输入与查询，并设置为唯一索引 | 是，影响主数据导入和订单列表的高效检索 |
-| 客户送货地址多地址支持 | 当前一个客户只支持一个 `deliveryAddress` 字符串 | V1 阶段若仅支持单地址可维持现状，后续若有多个收货地址，需抽象为单独的地址子表 | 否 |
 
 ---
 
@@ -71,8 +70,8 @@
 | `defaultLeadTime` | integer | 默认采购周期（天数） | keep | 默认为 0。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
 | `remark` | text | 备注说明 | keep | 默认值为空字符串。 |
-| `createdAt` | text | 创建时间 | rename_later | TS定义中为驼峰命名，应统一为蛇形 `created_at`。 |
-| `updatedAt` | text | 更新时间 | rename_later | TS定义中为驼峰命名，应统一为蛇形 `updated_at`。 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
+| `updatedAt` | text | 更新时间 | keep | 数据库物理列已通过 Drizzle 映射为 `updated_at`，TS 属性名暂不修改。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -87,8 +86,8 @@
 | `defaultLeadTime` | integer | 是 | 默认采购周期（天数） | `0` | keep |
 | `status` | text | 是 | 状态 | `'active'` (active / inactive) | keep |
 | `remark` | text | 否 | 备注 | `''` | keep |
-| `created_at` | text | 是 | 创建时间 | 当前时间戳 | rename_later |
-| `updated_at` | text | 是 | 更新时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
+| `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
@@ -110,8 +109,8 @@
 | `factoryCode` | text | 工厂编码 | keep | 用于隔离和快速匹配，默认空字符串。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
 | `remark` | text | 备注说明 | keep | 默认空字符串。 |
-| `createdAt` | text | 创建时间 | rename_later | TS定义中为驼峰命名，应统一为蛇形 `created_at`。 |
-| `updatedAt` | text | 更新时间 | rename_later | TS定义中为驼峰命名，应统一为蛇形 `updated_at`。 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
+| `updatedAt` | text | 更新时间 | keep | 数据库物理列已通过 Drizzle 映射为 `updated_at`，TS 属性名暂不修改。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -121,8 +120,8 @@
 | `factoryCode` | text | 是 | 工厂编码 | 无 | keep |
 | `status` | text | 是 | 状态 | `'active'` (active / inactive) | keep |
 | `remark` | text | 否 | 备注 | `''` | keep |
-| `created_at` | text | 是 | 创建时间 | 当前时间戳 | rename_later |
-| `updated_at` | text | 是 | 更新时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
+| `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
@@ -145,8 +144,8 @@
 | `party_id` | text | 往来单位关联ID | rename_later | 用于指向客户，但名称应改名为 `customer_id` 关联 `customers` 表。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
 | `notes` | text | 备注说明 | keep | 默认空字符串。 |
-| `created_at` | text | 创建时间 | keep | 已使用蛇形命名。 |
-| `updated_at` | text | 更新时间 | keep | 已使用蛇形命名。 |
+| `created_at` | text | 创建时间 | keep | 标准蛇形命名，物理列一致。 |
+| `updated_at` | text | 更新时间 | keep | 标准蛇形命名，物理列一致。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -182,8 +181,8 @@
 | `process_route` | text | 工艺路线 | keep | 默认 `'[]'`。 |
 | `notes` | text | 备注说明 | keep | 默认空字符串。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
-| `created_at` | text | 创建时间 | keep | |
-| `updated_at` | text | 更新时间 | keep | |
+| `created_at` | text | 创建时间 | keep | 标准蛇形命名，物理列一致。 |
+| `updated_at` | text | 更新时间 | keep | 标准蛇形命名，物理列一致。 |
 | `project_id` | text | 关联项目ID | keep | |
 | `party_id` | text | 关联往来单位ID | rename_later | 实际表示客户ID，应改名为 `customer_id` 关联 `customers`。 |
 | `project_code` | text | 冗余项目编码 | deprecated | 属于冗余字段，可直接通过 `project_id` 关联查询。 |
@@ -212,7 +211,7 @@
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| 重复的产品-型材关系 | `products.profile_code` 与 `product_materials` BOM 关系表均可以维护型材，逻辑冲突 | 废弃 `products.profile_code`，全部以 `product_materials` 中的BOM数据作为物料消耗的事实源，产品表上仅保留推荐性质的 `default_material_id` | 是，排产时无法确定以哪个字段为准去检查物料库存 |
+| 重复的产品-型材关系 | `products.profile_code` 与 `product_materials` BOM 关系表均可以维护型材，逻辑冲突 | 废弃 `products.profile_code`，全部以 `product_materials` 中的BOM数据作为物料消耗的事实源，产品表上仅保留推荐性质 of `default_material_id` | 是，排产时无法确定以哪个字段为准去检查物料库存 |
 | 工艺路线以JSON字符串形式直存 | `process_route` 直存工序ID数组（例如 `["1","2"]`），不利于进行工序维度的联合查询和排程 | V1 阶段保持JSON以便于快速开发，但在工单生成时必须把当前的工艺内容进行快照保存 | 是，否则会导致全局工艺更改时，进行中的工单工序错乱 |
 
 ---
@@ -233,8 +232,8 @@
 | `spec` | text | 规格 | keep | 默认空字符串。 |
 | `notes` | text | 备注说明 | keep | 默认空字符串。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
-| `created_at` | text | 创建时间 | keep | |
-| `updated_at` | text | 更新时间 | keep | |
+| `created_at` | text | 创建时间 | keep | 标准蛇形命名，物理列一致。 |
+| `updated_at` | text | 更新时间 | keep | 标准蛇形命名，物理列一致。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -273,8 +272,8 @@
 | `material_id` | text | 原材料物料ID | keep | 必填。 |
 | `quantity` | integer | 消耗数量 | keep | 默认 1。 |
 | `status` | text | 状态 | keep | 默认 `'active'`。 |
-| `created_at` | text | 创建时间 | keep | |
-| `updated_at` | text | 更新时间 | keep | |
+| `created_at` | text | 创建时间 | keep | 标准蛇形命名，物理列一致。 |
+| `updated_at` | text | 更新时间 | keep | 标准蛇形命名，物理列一致。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -309,15 +308,15 @@
 | `id` | text | 需求主表ID | keep | 主键。 |
 | `code` | text | 需求编码 | keep | 用于展示的导入批次单号。 |
 | `customerId` | text | 关联客户ID | keep | 必填。 |
-| `customerName` | text | 客户名称 | rename_later | 冗余文本，应改名或建议废弃，仅以客户ID为准。 |
+| `customerName` | text | 客户名称 | keep | 历史快照字段，用于保留需求导入时的客户/产品显示信息，不作为主数据唯一事实源。 |
 | `sourceType` | text | 来源类型 | keep | 默认 `'manual'`。 |
 | `sourceFileName` | text | 导入的文件名称 | keep | 默认空字符串。 |
 | `demandVersion` | integer | 需求版本号 | keep | 默认 1，每次重复导入同一单号则递增。 |
 | `status` | text | 需求状态 | keep | 默认 `'imported'`，需要与目标状态统一。 |
 | `requestedDate` | text | 要求交付日期 | keep | 默认空字符串。 |
 | `notes` | text | 备注说明 | keep | 默认空字符串。 |
-| `createdAt` | text | 创建时间 | rename_later | 驼峰需重命名为蛇形。 |
-| `updatedAt` | text | 更新时间 | rename_later | 驼峰需重命名为蛇形。 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
+| `updatedAt` | text | 更新时间 | keep | 数据库物理列已通过 Drizzle 映射为 `updated_at`，TS 属性名暂不修改。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -325,14 +324,15 @@
 | `id` | text | 是 | 需求主表ID | 无 | keep |
 | `code` | text | 是 | 需求编码 | 无 | keep |
 | `customer_id` | text | 是 | 关联客户ID | 无 | rename_later (由 `customerId` 改名) |
+| `customerName` | text | 否 | 客户名称历史快照 | `''` | keep |
 | `sourceType` | text | 是 | 需求来源 | `'manual'` (manual / excel_import) | keep |
 | `sourceFileName` | text | 否 | 导入的文件名称 | `''` | keep |
 | `demandVersion` | integer | 是 | 需求版本号 | `1` | keep |
 | `status` | text | 是 | 需求状态 | `'imported'` | keep |
 | `requestedDate` | text | 否 | 要求交付日期 | `''` | keep |
 | `notes` | text | 否 | 备注 | `''` | keep |
-| `created_at` | text | 是 | 创建时间 | 当前时间戳 | rename_later |
-| `updated_at` | text | 是 | 更新时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
+| `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
@@ -353,11 +353,11 @@
 | `demandId` | text | 关联需求主表ID | keep | 必填。 |
 | `code` | text | 明细行编码 | keep | 唯一索引，格式如 CD-001-001。 |
 | `customerId` | text | 客户ID | keep | |
-| `customerName` | text | 客户名称 | rename_later | 冗余文本，后续应改名或废弃。 |
+| `customerName` | text | 客户名称 | keep | 历史快照字段，用于保留需求导入时的客户/产品显示信息，不作为主数据唯一事实源。 |
 | `projectCode` | text | 项目编码 | rename_later | 建议改为 `project_id` 强外键关联项目表，避免存文本编码。 |
 | `productId` | text | 产品ID | keep | |
-| `productCode` | text | 产品编码 | rename_later | 冗余字段，可从 products 关联查询。 |
-| `productName` | text | 产品名称 | rename_later | 冗余字段。 |
+| `productCode` | text | 产品编码 | keep | 历史快照字段，用于保留需求导入时的客户/产品显示信息，不作为主数据唯一事实源。 |
+| `productName` | text | 产品名称 | keep | 历史快照字段，用于保留需求导入时的客户/产品显示信息，不作为主数据唯一事实源。 |
 | `sourceType` | text | 来源类型 | keep | 默认 `'manual'`。 |
 | `quantity` | integer | 需求数量 | keep | |
 | `deliveredQuantity` | integer | 已发货数量 | rename_later | 改名为 `shipped_quantity` 以符合语义。 |
@@ -365,8 +365,8 @@
 | `status` | text | 明细行状态 | keep | 默认 `'confirmed'`，需要对齐规范。 |
 | `dueDate` | text | 要求交期 | keep | |
 | `notes` | text | 备注 | keep | |
-| `createdAt` | text | 创建时间 | rename_later | 驼峰需统一。 |
-| `updatedAt` | text | 更新时间 | rename_later | 驼峰需统一。 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
+| `updatedAt` | text | 更新时间 | keep | 数据库物理列已通过 Drizzle 映射为 `updated_at`，TS 属性名暂不修改。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -375,8 +375,11 @@
 | `demand_id` | text | 是 | 关联需求主表ID | 无 | rename_later (由 `demandId` 改名) |
 | `code` | text | 是 | 明细行编码 | 无 | keep |
 | `customer_id` | text | 是 | 客户ID | 无 | rename_later (由 `customerId` 改名) |
+| `customerName` | text | 否 | 客户名称快照 | `''` | keep |
 | `project_id` | text | 是 | 关联项目ID | 无 | need_add |
 | `productId` | text | 是 | 产品ID | 无 | keep |
+| `productCode` | text | 否 | 产品编码快照 | `''` | keep |
+| `productName` | text | 否 | 产品名称快照 | `''` | keep |
 | `quantity` | integer | 是 | 销售下单数量 | 无 | keep |
 | `required_quantity` | integer | 是 | 实际计算需求量 (可加备品系数) | `0` | need_add |
 | `planned_quantity` | integer | 是 | 已排产数量 | `0` | need_add |
@@ -389,10 +392,36 @@
 | `source_line_no` | text | 否 | 导入的原始行号 | `''` | need_add |
 | `notes` | text | 否 | 备注 | `''` | keep |
 | `closed_at` | text | 否 | 关闭时间 | 无 | need_add |
-| `created_at` | text | 是 | 创建时间 | 当前时间戳 | rename_later |
-| `updated_at` | text | 是 | 更新时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
+| `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
-#### 4. 需要人工确认的问题
+#### 4. 状态流转规则
+* **导入后**：
+  * `customer_demands.status = imported`
+  * `demand_lines.status = imported`
+* **确认后**：
+  * `customer_demands.status = confirmed`
+  * `demand_lines.status = confirmed`
+* **排产后**：
+  * `demand_lines.status = planned`
+* **生产下发后**：
+  * `demand_lines.status = in_production`
+* **可发货后**：
+  * `demand_lines.status = ready_to_ship`
+* **部分发货后**：
+  * `demand_lines.status = partially_shipped`
+* **全部发货后**：
+  * `demand_lines.status = shipped`
+* **关闭后**：
+  * `demand_lines.status = closed`
+* **取消后**：
+  * `demand_lines.status = cancelled`
+
+> [!IMPORTANT]
+> * 不允许导入时主表是 `imported`，但明细行直接 `confirmed`。
+> * 前端如果展示的是需求行状态，就必须以 `demand_lines.status` 为准。
+
+#### 5. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
 | 未发货数量 `unshippedQuantity` 维护冲突 | 数据库中物理存了 `unshippedQuantity` 字段，且每次发货都需要手动更新 `deliveredQuantity` 和 `unshippedQuantity` | 废弃 `unshippedQuantity` 字段的物理存储，改为通过 SQL 动态计算 (quantity - shipped_quantity)，防止并发更新时数据不对齐 | 否，仅涉及计算优化 |
@@ -403,7 +432,7 @@
 ### 10. production_plans
 
 #### 1. 业务定位
-`production_plans` 是生产排产计划主表。生产计划可以关联一个或多个需求明细行（多对多关系使用 `production_demand_links` 表达），后续业务逻辑不再把旧的 `customer_orders` 或 `order_lines` 作为计划的来源。
+`production_plans` 是生产排产计划主表。V1 中生产计划与需求行的唯一可信关联关系为 `production_demand_links`。即使单个需求行生成单个生产计划，也必须写入 `production_demand_links`。生产计划可以来自一个或多个 `demand_lines` 的合并排产，后续业务逻辑不再把旧的 `customer_orders` 或 `order_lines` 作为计划的来源。
 
 #### 2. 当前字段审计
 | 字段 | 当前类型 | 当前含义 | 状态 | 备注 |
@@ -412,7 +441,7 @@
 | `code` | text | 计划单号 | keep | 唯一。 |
 | `title` | text | 计划标题 | keep | |
 | `planDate` | text | 计划排程日期 | keep | |
-| `orderLineId` | text | 关联行ID | rename_later | 字段名不准确，当前实际存放的是 `customer_demands.id` (主表ID) 或 `demand_line_id`。建议重命名或废弃。 |
+| `orderLineId` | text | 关联订单行ID | deprecated | 字段语义混乱，历史上可能存旧订单行或需求行。V1 新逻辑不再依赖此字段，统一通过 `production_demand_links` 关联 `demand_lines`。 |
 | `projectCode` | text | 关联项目编码 | rename_later / deprecated | 冗余文本，应通过 `projectId` 联查。 |
 | `productCode` | text | 关联产品编码 | rename_later / deprecated | 冗余文本，应通过 `productId` 联查。 |
 | `materialCode` | text | 关联型材编码 | rename_later / deprecated | 冗余文本，应通过 `materialId` 联查。 |
@@ -421,7 +450,7 @@
 | `customerId` | text | 客户ID | keep | |
 | `productId` | text | 产品ID | keep | |
 | `materialId` | text | 物料ID | keep | 指主型材的ID。 |
-| `planQty` | integer | 计划排产数量 | rename_later / deprecated | 与 `plannedQuantity` 重复冗余。 |
+| `planQty` | integer | 计划排产数量 | deprecated | 与 `plannedQuantity` 重复冗余。 |
 | `plannedQuantity` | integer | 计划生产数量 | keep | 建议统一使用此字段。 |
 | `dueDate` | text | 计划交付日期 | keep | |
 | `priority` | text | 优先级 | keep | 默认 `'medium'`。 |
@@ -432,8 +461,8 @@
 | `status` | text | 计划状态 | keep | 默认 `'draft'`，需要与目标状态统一。 |
 | `createdBy` | text | 创建人 | keep | |
 | `releasedAt` | text | 下发日期 | keep | |
-| `createdAt` | text | 创建时间 | rename_later | 驼峰需统一。 |
-| `updatedAt` | text | 更新时间 | rename_later | 驼峰需统一。 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
+| `updatedAt` | text | 更新时间 | keep | 数据库物理列已通过 Drizzle 映射为 `updated_at`，TS 属性名暂不修改。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -442,6 +471,7 @@
 | `code` | text | 是 | 计划编码 | 无 | keep |
 | `title` | text | 是 | 计划标题 | 无 | keep |
 | `planDate` | text | 是 | 计划日期 | 无 | keep |
+| `orderLineId` | text | 否 | 关联行ID（已废弃） | 无 | deprecated |
 | `demand_line_id` | text | 否 | 关联单需求行时使用该字段 | 无 | need_add |
 | `projectId` | text | 否 | 项目ID | 无 | keep |
 | `customerId` | text | 否 | 客户ID | 无 | keep |
@@ -461,8 +491,8 @@
 | `releasedAt` | text | 否 | 发布时间 | 无 | keep |
 | `locked_at` | text | 否 | 锁定时间 | 无 | need_add |
 | `cancelled_at` | text | 否 | 取消时间 | 无 | need_add |
-| `created_at` | text | 是 | 创建时间 | 当前时间戳 | rename_later |
-| `updated_at` | text | 是 | 更新时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
+| `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
@@ -499,8 +529,8 @@
 | `plannedFinishDate` | text | 计划完工日期 | keep | |
 | `currentStepId` | text | 当前工序步骤ID | keep | 关联 `work_order_steps` |
 | `notes` | text | 备注 | keep | |
-| `createdAt` | text | 创建时间 | rename_later | 驼峰需统一 |
-| `updatedAt` | text | 更新时间 | rename_later | 驼峰需统一 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
+| `updatedAt` | text | 更新时间 | keep | 数据库物理列已通过 Drizzle 映射为 `updated_at`，TS 属性名暂不修改。 |
 | `completedAt` | text | 完工时间 | keep | |
 | `closedAt` | text | 关闭时间 | keep | |
 
@@ -531,8 +561,8 @@
 | `completedAt` | text | 否 | 实际完工时间 | 无 | keep |
 | `closedAt` | text | 否 | 实际关闭时间 | 无 | keep |
 | `cancelled_at` | text | 否 | 取消时间 | 无 | need_add |
-| `created_at` | text | 是 | 创建时间 | 当前时间戳 | rename_later |
-| `updated_at` | text | 是 | 更新时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
+| `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
@@ -552,47 +582,52 @@
 |---|---|---|---|---|
 | `id` | text | 库存余额ID | keep | 主键 |
 | `itemId` | text | 物料/产品ID | keep | 核心标识，可以为 `products.id` 或 `materials.id` |
-| `itemCode` | text | 物料/产品编码 | rename_later / deprecated | 冗余字段，容易因主数据修改导致不同步 |
-| `itemName` | text | 物料/产品名称 | rename_later / deprecated | 冗余字段 |
+| `itemCode` | text | 物料/产品编码 | keep | 当前库存查询缓存字段，由 InventoryLedgerService 统一维护，禁止业务模块直接写入。 |
+| `itemName` | text | 物料/产品名称 | keep | 当前库存查询缓存字段，由 InventoryLedgerService 统一维护，禁止业务模块直接写入。 |
 | `itemType` | text | 物品类型 | keep | `'product'` 或 `'material'` 等 |
 | `projectId` | text | 项目ID | keep | 标识是否属于项目专用料，为空代表通用料 |
-| `projectCode` | text | 项目编码 | rename_later / deprecated | 冗余字段 |
+| `projectCode` | text | 项目编码 | keep | 当前库存查询缓存字段，由 InventoryLedgerService 统一维护，禁止业务模块直接写入。 |
 | `customerId` | text | 客户ID | keep | 标识客户备料或寄存库存 |
-| `customerName` | text | 客户名称 | rename_later / deprecated | 冗余字段 |
+| `customerName` | text | 客户名称 | keep | 当前库存查询缓存字段，由 InventoryLedgerService 统一维护，禁止业务模块直接写入。 |
 | `warehouseId` | text | 仓库ID | keep | 外键 |
-| `warehouseName` | text | 仓库名称 | rename_later / deprecated | 冗余字段 |
+| `warehouseName` | text | 仓库名称 | keep | 当前库存查询缓存字段，由 InventoryLedgerService 统一维护，禁止业务模块直接写入。 |
 | `locationId` | text | 库位ID | keep | 外键 |
-| `locationCode` | text | 库位编码 | rename_later / deprecated | 冗余字段 |
+| `locationCode` | text | 库位编码 | keep | 当前库存查询缓存字段，由 InventoryLedgerService 统一维护，禁止业务模块直接写入。 |
 | `inventoryStatus` | text | 库存状态 | keep | 核心，需对齐状态枚举 |
 | `quantity` | integer | 库存数量 | keep | 核心，必须大于等于0 |
 | `unit` | text | 单位 | keep | |
 | `sourceNo` | text | 最后一次变动源单号 | keep | 用于直观溯源 |
 | `lastTransactionAt` | text | 最后变动时间 | keep | |
-| `createdAt` | text | 创建时间 | rename_later | 驼峰需统一 |
-| `updatedAt` | text | 更新时间 | rename_later | 驼峰需统一 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
+| `updatedAt` | text | 更新时间 | keep | 数据库物理列已通过 Drizzle 映射为 `updated_at`，TS 属性名暂不修改。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
 |---|---|---|---|---|---|
 | `id` | text | 是 | 库存主键ID | 无 | keep |
 | `itemId` | text | 是 | 产品ID / 物料ID | 无 | keep |
+| `itemCode` | text | 否 | 物料编码缓存 | `''` | keep |
+| `itemName` | text | 否 | 物料名称缓存 | `''` | keep |
 | `itemType` | text | 是 | 物品类型 | `'material'` (material/product) | keep |
 | `projectId` | text | 否 | 关联项目ID | 无 | keep |
+| `projectCode` | text | 否 | 项目编码缓存 | `''` | keep |
 | `customerId` | text | 否 | 关联客户ID | 无 | keep |
+| `customerName` | text | 否 | 客户名称缓存 | `''` | keep |
 | `warehouseId` | text | 是 | 仓库ID | 无 | keep |
+| `warehouseName` | text | 否 | 仓库名称缓存 | `''` | keep |
 | `locationId` | text | 否 | 库位ID | 无 | keep |
+| `locationCode` | text | 否 | 库位编码缓存 | `''` | keep |
 | `inventoryStatus` | text | 是 | 库存状态枚举 | `'available'` | keep |
 | `quantity` | integer | 是 | 当前结存数量 | `0` | keep |
 | `unit` | text | 是 | 计量单位 | `'pcs'` | keep |
 | `sourceNo` | text | 否 | 最近一次影响变化的单据号 | `''` | keep |
 | `lastTransactionAt` | text | 否 | 最近变化时间 | 无 | keep |
-| `created_at` | text | 是 | 创建时间 | 当前时间戳 | rename_later |
-| `updated_at` | text | 是 | 更新时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 创建时间 | 当前时间戳 | keep |
+| `updatedAt` | text | 是 | 更新时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
 |---|---|---|---|
-| 含有过多冗余的 code 和 name 字段 | 库存表中直接存了大量的 `itemCode`, `itemName`, `projectCode`, `customerName`, `warehouseName`, `locationCode` | V1 阶段保持物理读取优化以支持前端极速展现，但需保证所有服务类在写余额时通过主表读取最新关联；未来建议完全通过 `join` 联查，降低数据库体积和更新一致性成本 | 否，仅涉及数据库设计规范 |
 | 混用的库存异常状态值 | 服务层代码和质检系统在冻结与报废时，写入了 `'frozen'`, `'held'`, `'scrap'`, `'scrapped'` 4种不同的库存状态字符串 | 将冻结统一为 `'held'`，报废统一为 `'scrapped'`。彻底消除 `'frozen'` 和 `'scrap'`，重构状态检索条件 | 是，会导致库存可用性判断（如排产时查备料）漏算被冻结或报废的库存 |
 
 ---
@@ -608,17 +643,17 @@
 | `id` | text | 流水ID | keep | 主键 |
 | `transactionNo` | text | 变动流水号 | keep | 唯一，以 ITX 为前缀的单号 |
 | `itemId` | text | 物品ID | keep | 物料或产品ID |
-| `itemCode` | text | 物品编码 | rename_later / deprecated | 冗余字段 |
-| `itemName` | text | 物品名称 | rename_later / deprecated | 冗余字段 |
+| `itemCode` | text | 物品编码 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
+| `itemName` | text | 物品名称 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
 | `itemType` | text | 物品类型 | keep | `'product'` / `'material'` |
 | `projectId` | text | 项目ID | keep | 允许为空 |
-| `projectCode` | text | 项目编码 | rename_later / deprecated | 冗余 |
+| `projectCode` | text | 项目编码 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
 | `customerId` | text | 客户ID | keep | 允许为空 |
-| `customerName` | text | 客户名称 | rename_later / deprecated | 冗余 |
+| `customerName` | text | 客户名称 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
 | `warehouseId` | text | 仓库ID | keep | |
-| `warehouseName` | text | 仓库名称 | rename_later / deprecated | 冗余 |
+| `warehouseName` | text | 仓库名称 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
 | `locationId` | text | 库位ID | keep | |
-| `locationCode` | text | 库位编码 | rename_later / deprecated | 冗余 |
+| `locationCode` | text | 库位编码 | keep | 库存流水历史快照字段，用于审计追溯，不随主数据改名而重写。 |
 | `transactionType` | text | 变动交易类型 | keep | 收/发/调/冻/释，需要对齐规范 |
 | `quantityChange` | integer | 变动数量 | keep | 可正可负（入库为正，出库为负） |
 | `beforeQuantity` | integer | 变动前数量 | keep | 默认 0 |
@@ -632,7 +667,7 @@
 | `operatorName` | text | 操作员姓名 | keep | |
 | `occurredAt` | text | 发生时间 | keep | |
 | `remark` | text | 变动备注/原因说明 | keep | |
-| `createdAt` | text | 创建时间 | rename_later | 驼峰需统一 |
+| `createdAt` | text | 创建时间 | keep | 数据库物理列已通过 Drizzle 映射为 `created_at`，TS 属性名暂不修改。 |
 
 #### 3. V1 目标字段草案
 | 字段 | 类型 | 是否必填 | 说明 | 默认值 / 枚举 | 状态 |
@@ -640,11 +675,17 @@
 | `id` | text | 是 | 流水ID | 无 | keep |
 | `transactionNo` | text | 是 | 流水编码 | 无 | keep |
 | `itemId` | text | 是 | 产品ID / 物料ID | 无 | keep |
+| `itemCode` | text | 否 | 物料编码快照 | `''` | keep |
+| `itemName` | text | 否 | 物料名称快照 | `''` | keep |
 | `itemType` | text | 是 | 物品类型 | `'material'` | keep |
 | `projectId` | text | 否 | 关联项目ID | 无 | keep |
+| `projectCode` | text | 否 | 项目编码快照 | `''` | keep |
 | `customerId` | text | 否 | 关联客户ID | 无 | keep |
+| `customerName` | text | 否 | 客户名称快照 | `''` | keep |
 | `warehouseId` | text | 是 | 仓库ID | 无 | keep |
+| `warehouseName` | text | 否 | 仓库名称快照 | `''` | keep |
 | `locationId` | text | 否 | 库位ID | 无 | keep |
+| `locationCode` | text | 否 | 库位编码快照 | `''` | keep |
 | `transactionType` | text | 是 | 变动类型枚举 | 无 | keep |
 | `quantityChange` | integer | 是 | 变动数量 (入库为正，出库为负) | 无 | keep |
 | `beforeQuantity` | integer | 是 | 变动前结存量 | `0` | keep |
@@ -658,7 +699,7 @@
 | `operatorName` | text | 是 | 操作人员名字 | 无 | keep |
 | `occurredAt` | text | 是 | 记账时间 | 当前时间戳 | keep |
 | `remark` | text | 否 | 调整/变动原因说明 | `''` | keep |
-| `created_at` | text | 是 | 写入时间 | 当前时间戳 | rename_later |
+| `createdAt` | text | 是 | 写入时间 | 当前时间戳 | keep |
 
 #### 4. 需要人工确认的问题
 | 问题 | 当前情况 | 推荐方案 | 是否影响后续开发 |
@@ -672,52 +713,42 @@
 
 | 表 | 当前字段 | 问题 | 建议处理 |
 |---|---|---|---|
-| `customer_demands`, `demand_lines`, `work_orders`, `inventory_balances`, `inventory_transactions` | `customerName` / `customer_name` | 冗余存储客户名称字符串。如果客户在主数据中更名，会导致各 transactional 表数据与主数据不一致。 | 废弃这些冗余文本字段，仅保留 `customer_id` 外键，通过联合查询动态获取最新名称。 |
-| `products`, `demand_lines`, `production_plans`, `work_orders`, `inventory_balances`, `inventory_transactions` | `projectCode` / `projectName` | 冗余存储项目的 Code 和 Name 文本。 | 废弃冗余的 Code 和 Name 列，仅保留 `project_id` 外键，查询时通过外键获取最新编码。 |
+| `customer_demands`, `demand_lines`, `work_orders`, `inventory_balances`, `inventory_transactions` | `customerName` / `customer_name` | 冗余存储客户名称字符串。如果客户在主数据中更名，会导致各表数据不同步。 | 业务单据表、库存流水表和结存表均作为历史快照或查询缓存保留，标记为 `keep`，不作为主数据唯一事实源。 |
+| `products`, `demand_lines`, `production_plans`, `work_orders`, `inventory_balances`, `inventory_transactions` | `projectCode` / `projectName` | 冗余存储项目的 Code 和 Name 文本。 | 作为历史快照或查询缓存保留，标记为 `keep`。 |
 | `projects`, `products` | `party_id` | 指向旧的往来单位表（`parties`），但现在客户已独立至 `customers` 表，容易导致关联混乱。 | 重命名该字段为 `customer_id`，并建立与 `customers.customerId` 的强外键关系。 |
 | `products` | `factory` | 生产工厂存为文本 `'宜宾'`，而系统已存在工厂主数据表 `manufacturing_factories`。 | 废弃文本 `factory` 字段，增加 `factory_id` 外键关联工厂主数据。 |
 | `products` | `profile_code` | 型材默认代码以文本形式直存，未建立与 `materials` 的主外键关联。 | 改名为 `default_material_id`，关联 `materials.id`。真正的消耗关系交由 `product_materials` (BOM表) 决定。 |
 | `production_plans` | `planQty` & `plannedQuantity` | 同一张表里同时存在这两个含义一模一样的整型字段，在代码中同时被写入相同的值。 | 废弃 `planQty` 字段，代码中统一使用 `plannedQuantity`。 |
 | `work_orders` | `goodQuantity` & `completedQuantity` | 这两个字段在报工和结单时语义模糊。`completedQuantity` 既被用作合格汇总，又与 `goodQuantity` 区分不明。 | 明确定义：`goodQuantity` 代表各工序过程报工合格数的累加值；`completedQuantity` 代表最终末工序入库合格数。建议将 `completedQuantity` 改名为 `finished_quantity`。 |
-| 多个主数据及明细表 | `createdAt`, `updatedAt` | 有些表（如 `customers`）在TS定义中使用驼峰，有些表（如 `products`）使用蛇形命名，导致ORM实体模型属性风格不一致。 | 统一将TS层面的映射变量统一改为蛇形命名（`created_at`, `updated_at`），使之与数据库物理列名完全对齐。 |
 
 ---
 
 ## 待补充字段清单
 
-| 表 | 建议新增字段 | 原因 | 是否影响 V1 开发 | 是否必须立即新增 |
-|---|---|---|---|---|
-| `customers` | `customer_code` | 客户需要有简短易读的唯一编码（如 CUST-001）用于前台搜索和导入匹配。 | 是 | 否 (目前用 UUID 代替) |
-| `profile_suppliers` | `supplier_code` | 原材料采购和入库需要通过易读的供应商编码识别，而非仅靠长 UUID。 | 是 | 否 |
-| `products` | `customer_id` | 用于取代旧的 `party_id`，明确产品所属的客户归属。 | 是 | 是 |
-| `products` | `factory_id` | 取代硬编码的工厂文本，使产品能指派给不同的实体工厂。 | 是 | 是 |
-| `products` | `default_material_id` | 明确关联默认的主型材物料记录。 | 是 | 否 |
-| `products` | `drawing_no` | CNC加工件交付给客户前，必须核对具体的图纸版本号。 | 是 | 否 |
-| `products` | `spec` | 产品规格信息。 | 否 | 否 |
-| `materials` | `supplier_id` | 原材料默认供应商，以便做采购建议和到货跟踪。 | 是 | 否 |
-| `materials` | `material_category` | 物料大类，区分主材、辅料、包材。 | 否 | 否 |
-| `materials` | `default_lead_time` | 原材料默认采购提前期，供MRP齐套性算期使用。 | 是 | 否 |
-| `product_materials` | `usage_unit` | BOM消耗单位（如米/千克），可能与库存PCS单位不同。 | 是 | 否 |
-| `product_materials` | `loss_rate` | 备料计算时必须包含型材锯切及打样的定额损耗。 | 是 | 否 |
-| `product_materials` | `is_primary` | 用于标识多物料BOM中，哪一个是核心主型材。 | 是 | 是 |
-| `product_materials` | `remark` | BOM条目说明。 | 否 | 否 |
-| `demand_lines` | `project_id` | 销售明细行必须强外键关联到项目，而非冗余 projectCode 文本。 | 是 | 是 |
-| `demand_lines` | `required_quantity` | 销售明细的考虑损耗后的实际制造需求数量。 | 是 | 否 |
-| `demand_lines` | `planned_quantity` | 回写已排产的生产计划总数，用以监控订单排产进度。 | 是 | 否 |
-| `demand_lines` | `produced_quantity` | 过程报工合格产出数累计，用以监控车间完工情况。 | 是 | 否 |
-| `demand_lines` | `shipped_quantity` | 替换原 `deliveredQuantity`，对齐命名。 | 是 | 是 |
-| `demand_lines` | `cancelled_quantity` | 订单行中途被客户取消的部分。 | 否 | 否 |
-| `demand_lines` | `priority` | 行级紧急度（如：紧急/特急/常规）。 | 否 | 否 |
-| `demand_lines` | `source_line_no` | 方便与Excel原始明细行的序号做位置对照，提供纠错能力。 | 否 | 否 |
-| `demand_lines` | `closed_at` | 记录订单行被手动或自动关闭的时间戳。 | 否 | 否 |
-| `production_plans` | `demand_line_id` | 针对单需求行计划时的快速追溯。 | 是 | 否 |
-| `production_plans` | `plan_type` | 计划类型（如：常规排产、翻工补制、试样）。 | 否 | 否 |
-| `production_plans` | `factory_id` | 计划指派的具体加工工厂。 | 是 | 是 |
-| `production_plans` | `locked_at` & `cancelled_at` | 计划的锁定与作废时间记录。 | 否 | 否 |
-| `work_orders` | `demand_line_id` | 完工及报工数据直接追溯销售需求行。 | 是 | 是 |
-| `work_orders` | `factory_id` | 车间派工的具体执行厂区。 | 是 | 是 |
-| `work_orders` | `process_route_snapshot` | 锁死开工时的工艺路线快照，防止全局产品工艺修改波及执行中工单。 | 是 | 是 |
-| `work_orders` | `released_at`, `started_at`, `cancelled_at` | 完工流转各阶段的具体时间点戳，供绩效考核使用。 | 否 | 否 |
+| 表 | 建议新增字段 | 原因 | 优先级 |
+|---|---|---|---|
+| `products` | `customer_id` | 用于取代旧的 `party_id`，明确产品所属的客户归属。 | `lock_before_v1` |
+| `products` | `factory_id` | 取代硬编码的工厂文本，使产品能指派给不同的实体工厂。 | `lock_before_v1` |
+| `demand_lines` | `project_id` | 销售明细行必须强外键关联到项目，而非冗余 projectCode 文本。 | `lock_before_v1` |
+| `production_plans` | `factory_id` | 计划指派的具体加工工厂。 | `lock_before_v1` |
+| `work_orders` | `factory_id` | 车间派工的具体执行厂区。 | `lock_before_v1` |
+| `work_orders` | `process_route_snapshot` | 锁死开工时的工艺路线快照，防止全局产品工艺修改波及执行中工单。 | `lock_before_v1` |
+| `customers` | `customer_code` | 客户需要有简短易读的唯一编码（如 CUST-001）用于前台搜索和导入匹配。 | `v1_later` |
+| `profile_suppliers` | `supplier_code` | 原材料采购和入库需要通过易读的供应商编码识别，而非仅靠长 UUID。 | `v1_later` |
+| `products` | `default_material_id` | 明确关联默认的主型材物料记录。 | `v1_later` |
+| `products` | `drawing_no` | CNC加工件交付给客户前，必须核对具体的图纸版本号。 | `v1_later` |
+| `materials` | `supplier_id` | 原材料默认供应商，以便做采购建议和到货跟踪。 | `v1_later` |
+| `materials` | `default_lead_time` | 原材料默认采购提前期，供MRP齐套性算期使用。 | `v1_later` |
+| `product_materials` | `loss_rate` | 备料计算时必须包含型材锯切及打样的定额损耗。 | `v1_later` |
+| `product_materials` | `is_primary` | 用于标识多物料BOM中，哪一个是核心主型材。 | `v1_later` |
+| `demand_lines` | `planned_quantity` | 回写已排产的生产计划总数，用以监控订单排产进度。 | `v1_later` |
+| `demand_lines` | `produced_quantity` | 过程报工合格产出数累计，用以监控车间完工情况。 | `v1_later` |
+| `work_orders` | `released_at` | 工单发布给生产的时间戳。 | `v1_later` |
+| `work_orders` | `started_at` | 车间开工时间戳。 | `v1_later` |
+| `customers` | `客户多地址表` | 支持单个客户多个不同送货及发货地址（子表）。 | `v2` |
+| `product_materials` | `BOM复杂单位换算` | 支持BOM消耗单位与库存计量单位的复杂换算逻辑。 | `v2` |
+| `materials` | `多供应商优先级` | 支持单个物料配置多个备选供应商及采购配额/优先级。 | `v2` |
+| `materials` | `高级MRP参数` | 如安全库存量、最小采购包装量、再订货点等参数。 | `v2` |
 
 ---
 
@@ -738,11 +769,35 @@
 |---|---|---|---|
 | **1. 废弃 parties 表带来的历史数据转换** | `projects`, `products`, `customers` | V1 全面启用 `customers` 作为唯一客户主数据，将原先在 `parties` 中具有 `'customer'` 类型的记录清洗并迁移到 `customers` 表，删除 `parties` 的逻辑依赖。 | 是，涉及系统能否平滑升级。 |
 | **2. 工单完工数量 completedQuantity 的精确业务定义** | `work_orders` | 明确定义：`goodQuantity` 为各工序扫码合格的中间件累计，`completedQuantity` 仅指末道工序报工产出的最终合格品数量。该数量是触发产成品入库的唯一基准。 | 是，直接影响车间产出统计和报工准确度。 |
-| **3. 计划单行关联与多行合并的架构选择** | `production_plans` | 当单行需求直接生成排产时，在计划上填写 `demand_line_id`；当多行需求合并排产时，此字段留空，通过 `production_demand_links` 记录关联关系。 | 是，直接决定排产业务服务的核心处理逻辑。 |
+| **3. 计划与需求行的唯一可信关联** | `production_plans` | V1 中生产计划与需求行的唯一可信关联关系为 `production_demand_links`。即使单个需求行生成单个生产计划，也必须写入 `production_demand_links`。废弃单行关联外键。 | 是，直接决定排产业务服务的核心处理逻辑。 |
 | **4. 生产工厂字段 factory 从文本向 ID 外键重构** | `products`, `production_plans`, `work_orders` | 将上述表中所有的 `factory` 文本列逐步改造为 `factory_id`，强制在 `manufacturing_factories` 中配置并读取，清除 `'宜宾'` 等硬编码默认值。 | 是，决定了多厂区（宜宾、重庆、外协）业务拆分后的权限与数据隔离。 |
 | **5. 运行中工单的工艺路线防波机制** | `work_orders` | 引入 `process_route_snapshot` 字段。工单在“发布（released）”状态时，克隆并固化产品当前的 `process_route` JSON，后续执行完全依赖快照。 | 是，防止中途修改工艺导致的工序执行及报工错误。 |
-| **6. 库存结存表冗余项的一致性保障** | `inventory_balances` | V1 阶段为提高查询效率，暂时保留 `itemCode`, `itemName`, `projectCode` 等冗余文本，但必须在 `InventoryLedgerService` 的增删改事务中加锁同步；V2 阶段建议完全废弃这些冗余，使用 SQL Join 动态查询。 | 否，仅涉及数据库写入的一致性成本。 |
+| **6. 库存结存及流水表快照与缓存字段** | `inventory_balances`, `inventory_transactions` | 快照与缓存字段状态标记为 `keep`，作为历史查询及追溯依据，禁止随意废弃。但需在 `InventoryLedgerService` 中建立一致的写入维护规范。 | 是，影响数据完整度。 |
 | **7. 异常状态值 (frozen vs held) 命名标准** | `inventory_balances`, `inventory_transactions` | 品质异常或库内锁定一律统称为“冻结（held）”，彻底废弃代码中的 `'frozen'` 字符串。不良报废状态一律统称为“报废（scrapped）”，废弃 `'scrap'` 字符串。 | 是，影响 MRP 计算时的可用库存（available = 结存 - held - scrapped）。 |
 | **8. 发货状态命名与生命周期的转换** | `customer_demands`, `demand_lines` | 统一将 `'delivered'`（已交付）更名为 `'shipped'`（已发货），因为货物出库并不代表客户已签收妥投，销售发货统一叫 shipment。 | 是，影响订单列表的状态查询与过滤。 |
 | **9. 生产领料及型材消耗的追溯设计** | `inventory_transactions` | 工单报工时除了产成品入库外，需增加原材料（型材）扣减流水，流水类型为 `production_issue`，并记录 `sourceId` 为当前工单ID，实现投料与产出双向追溯。 | 是，关系到能否生成车间物料超耗/节约分析报表。 |
-| **10. 客户编码 customer_code 缺失下的订单匹配规则** | `customers` | Excel导入订单时，目前使用 `customer_name` 去模糊匹配客户。容易因字眼不一致（如“长安” vs “长安汽车”）匹配失败。必须尽快补齐 `customer_code`，并强制以编码作为导入匹配的唯一键。 | 是，否则会带来大量重复导入或匹配错客户的手工纠错成本。 |
+| **10. 客户编码 customer_code 缺失下的订单匹配规则** | `customers` | Excel导入订单时，目前使用 `customer_name` 去模糊匹配客户。容易因字眼不一致匹配失败。必须尽快补齐 `customer_code`，并强制以编码作为导入匹配的唯一键。 | 是，否则会带来大量重复导入或匹配错客户的手工纠错成本。 |
+
+---
+
+## 后续必须补充的 V1 操作表
+
+当前文档只覆盖 13 张骨架表，还不能作为完整锁库依据。
+
+必须补充以下表的字段草案：
+
+- `inventory_holds`
+- `warehouses`
+- `locations`
+- `receipts`
+- `receipt_items`
+- `issues`
+- `issue_items`
+- `quality_issues`
+- `issue_actions`
+- `shipments`
+- `shipment_items`
+- `work_order_steps`
+- `operation_reports`
+
+在这些表字段草案完成前，不得宣布 Dday V1 数据库结构最终锁定。
