@@ -1,0 +1,20 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "cf-taskflow-hono",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-05-15",
+	"vars": {
+		"APP_TIMEZONE": "Asia/Shanghai"
+	},
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist/client"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "taskflow",
+			"database_id": "57b13e4a-57a0-4225-aad8-044434780f9e"
+		}
+	]
+}

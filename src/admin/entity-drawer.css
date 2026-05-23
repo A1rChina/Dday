@@ -1,0 +1,108 @@
+/* ================================================================
+   Unified Entity Drawer Styles (mes-entity-drawer)
+   ================================================================ */
+
+/* Drawer Global Structure */
+.mes-entity-drawer .ant-drawer-body {
+  background: #f5f7fa; /* Matches system background */
+  padding: 16px;
+  overflow-x: hidden;
+}
+
+.mes-entity-drawer .ant-drawer-header {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mes-entity-drawer .ant-drawer-footer {
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 16px;
+  background: #fff;
+}
+
+/* Drawer Content Container */
+.mes-drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Card Partition */
+.mes-drawer-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px 24px;
+}
+
+/* Card Title */
+.mes-drawer-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Card Title - Remove bottom margin if no content follows (edge case) */
+.mes-drawer-card-title:last-child {
+  margin-bottom: 0;
+}
+
+/* Form Grid Layout */
+.mes-drawer-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 24px;
+  row-gap: 0;
+}
+
+/* Inside grid, antd form items might need their bottom margin preserved or adjusted */
+.mes-drawer-form-grid .ant-form-item {
+  margin-bottom: 16px;
+}
+
+/* Full Width Form Item */
+.mes-drawer-form-item-full {
+  grid-column: span 2;
+}
+
+/* View Mode Field Display */
+.mes-drawer-view-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.mes-drawer-view-field-label {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mes-drawer-view-field-value {
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-wrap;
+  min-height: 22px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .mes-drawer-form-grid {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+  }
+  
+  .mes-drawer-form-item-full {
+    grid-column: span 1;
+  }
+  
+  .mes-drawer-card {
+    padding: 16px;
+  }
+}

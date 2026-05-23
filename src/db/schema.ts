@@ -1,0 +1,896 @@
+import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
+export const users = sqliteTable('users', {
+  id: text('id').primaryKey(),
+  username: text('username').notNull().unique(),
+  display_name: text('display_name').notNull().default(''),
+  role: text('role').notNull().default('viewer'),
+  status: text('status').notNull().default('active'),
+  password_hash: text('password_hash').notNull().default(''),
+  created_at: text('created_at').notNull(),
+  updated_at: text('updated_at').notNull(),
+});
+
+export const roles = sqliteTable('roles', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const permissions = sqliteTable('permissions', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  module: text('module').notNull(),
+  action: text('action').notNull(),
+  description: text('description').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const rolePermissions = sqliteTable('role_permissions', {
+  roleCode: text('role_code').notNull(),
+  permissionCode: text('permission_code').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.roleCode, table.permissionCode] }),
+  };
+});
+
+export const customers = sqliteTable('customers', {
+  customerId: text('customer_id').primaryKey(),
+  customerName: text('customer_name').notNull(),
+  customerShortName: text('customer_short_name').notNull().default(''),
+  contactPerson: text('contact_person').notNull().default(''),
+  contactPhone: text('contact_phone').notNull().default(''),
+  deliveryAddress: text('delivery_address').notNull().default(''),
+  status: text('status').notNull().default('active'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const profileSuppliers = sqliteTable('profile_suppliers', {
+  supplierId: text('supplier_id').primaryKey(),
+  supplierName: text('supplier_name').notNull(),
+  supplierShortName: text('supplier_short_name').notNull().default(''),
+  contactPerson: text('contact_person').notNull().default(''),
+  contactPhone: text('contact_phone').notNull().default(''),
+  address: text('address').notNull().default(''),
+  defaultLeadTime: integer('default_lead_time').notNull().default(0),
+  status: text('status').notNull().default('active'),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const parts = sqliteTable('parts', {
+  partId: text('part_id').primaryKey(),
+  partName: text('part_name').notNull(),
+  partNumber: text('part_number').notNull().unique(),
+  unit: text('unit').notNull().default('PCS'),
+  status: text('status').notNull().default('active'),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const manufacturingFactories = sqliteTable('manufacturing_factories', {
+  factoryId: text('factory_id').primaryKey(),
+  factoryName: text('factory_name').notNull(),
+  factoryCode: text('factory_code').notNull().default(''),
+  status: text('status').notNull().default('active'),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const projectParts = sqliteTable('project_parts', {
+  id: text('id').primaryKey(),
+  projectId: text('project_id').notNull(),
+  partId: text('part_id').notNull(),
+  customerId: text('customer_id'),
+  supplierId: text('supplier_id'),
+  manufacturingFactory: text('manufacturing_factory').notNull().default(''),
+  profileMaterialCode: text('profile_material_code').notNull().default(''),
+  profileMaterialName: text('profile_material_name').notNull().default(''),
+  unitUsage: integer('unit_usage').notNull().default(1),
+  safetyStock: integer('safety_stock').notNull().default(0),
+  warningStock: integer('warning_stock').notNull().default(0),
+  status: text('status').notNull().default('active'),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const products = sqliteTable('products', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  name: text('name').notNull(),
+  unit: text('unit').notNull().default('PCS'),
+  process_route: text('process_route').notNull().default('[]'),
+  notes: text('notes').notNull().default(''),
+  status: text('status').notNull().default('active'),
+  created_at: text('created_at').notNull(),
+  updated_at: text('updated_at').notNull(),
+  project_id: text('project_id'),
+  party_id: text('party_id'),
+  project_code: text('project_code'),
+  factory: text('factory').notNull().default('宜宾'),
+  profile_code: text('profile_code'),
+});
+
+export const materials = sqliteTable('materials', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  name: text('name').notNull(),
+  type: text('type').notNull().default('raw'),
+  unit: text('unit').notNull().default('pcs'),
+  spec: text('spec').notNull().default(''),
+  notes: text('notes').notNull().default(''),
+  status: text('status').notNull().default('active'),
+  created_at: text('created_at').notNull(),
+  updated_at: text('updated_at').notNull(),
+});
+
+export const processes = sqliteTable('processes', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  name: text('name').notNull(),
+  sortOrder: integer('sort_order').notNull().default(100),
+  notes: text('notes').notNull().default(''),
+  isActive: integer('is_active').notNull().default(1),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const machines = sqliteTable('machines', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  name: text('name').notNull(),
+  processId: text('process_id'),
+  status: text('status').notNull().default('available'),
+  notes: text('notes').notNull().default(''),
+  isActive: integer('is_active').notNull().default(1),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const workOrders = sqliteTable('work_orders', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  productionPlanId: text('production_plan_id'),
+  orderLineId: text('order_line_id'),
+  productId: text('product_id').notNull(),
+  materialId: text('material_id'),
+  customerName: text('customer_name').notNull().default(''),
+  projectName: text('project_name').notNull().default(''),
+  plannedQuantity: integer('planned_quantity').notNull(),
+  reportedQuantity: integer('reported_quantity').notNull().default(0),
+  goodQuantity: integer('good_quantity').notNull().default(0),
+  completedQuantity: integer('completed_quantity').notNull().default(0),
+  defectQuantity: integer('defect_quantity').notNull().default(0),
+  scrapQuantity: integer('scrap_quantity').notNull().default(0),
+  status: text('status').notNull().default('created'),
+  plannedStartDate: text('planned_start_date').notNull().default(''),
+  plannedFinishDate: text('planned_finish_date').notNull().default(''),
+  currentStepId: text('current_step_id'),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  completedAt: text('completed_at'),
+  closedAt: text('closed_at'),
+});
+
+export const workResources = sqliteTable('work_resources', {
+  id: text('id').primaryKey(),
+  productionPlanId: text('production_plan_id'),
+  workOrderId: text('work_order_id'),
+  processId: text('process_id'),
+  machineId: text('machine_id'),
+  plannedStartAt: text('planned_start_at').notNull().default(''),
+  plannedFinishAt: text('planned_finish_at').notNull().default(''),
+  status: text('status').notNull().default('planned'),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const workOrderSteps = sqliteTable('work_order_steps', {
+  id: text('id').primaryKey(),
+  workOrderId: text('work_order_id').notNull(),
+  processId: text('process_id'),
+  stepOrder: integer('step_order').notNull(),
+  name: text('name').notNull(),
+  plannedQuantity: integer('planned_quantity').notNull(),
+  completedQuantity: integer('completed_quantity').notNull().default(0),
+  defectQuantity: integer('defect_quantity').notNull().default(0),
+  scrapQuantity: integer('scrap_quantity').notNull().default(0),
+  status: text('status').notNull().default('pending'),
+  machineId: text('machine_id'),
+  startedAt: text('started_at'),
+  completedAt: text('completed_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const productionReports = sqliteTable('production_reports', {
+  id: text('id').primaryKey(),
+  workOrderId: text('work_order_id').notNull(),
+  stepId: text('step_id').notNull(),
+  processId: text('process_id'),
+  machineId: text('machine_id'),
+  operatorName: text('operator_name').notNull().default(''),
+  reportQty: integer('report_qty').notNull().default(0),
+  goodQty: integer('good_qty').notNull().default(0),
+  defectQty: integer('defect_qty').notNull().default(0),
+  scrapQty: integer('scrap_qty').notNull().default(0),
+  startedAt: text('started_at'),
+  endedAt: text('ended_at'),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const processCards = sqliteTable('process_cards', {
+  id: text('id').primaryKey(),
+  cardCode: text('card_code').notNull().unique(),
+  productionOrderId: text('production_order_id').notNull(),
+  productId: text('product_id'),
+  productName: text('product_name').notNull().default(''),
+  productCode: text('product_code').notNull().default(''),
+  drawingNo: text('drawing_no').notNull().default(''),
+  unit: text('unit').notNull().default('pcs'),
+  cardQty: integer('card_qty').notNull(),
+  currentOperationId: text('current_operation_id'),
+  currentOperation: text('current_operation').notNull().default(''),
+  status: text('status').notNull().default('created'),
+  printedAt: text('printed_at'),
+  createdBy: text('created_by').notNull().default(''),
+  remarks: text('remarks').notNull().default(''),
+  processHint: text('process_hint').notNull().default(''),
+  specialRemarks: text('special_remarks').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  voidedAt: text('voided_at'),
+});
+
+export const routeOperations = sqliteTable('route_operations', {
+  id: text('id').primaryKey(),
+  cardId: text('card_id').notNull(),
+  operationId: text('operation_id'),
+  operationCode: text('operation_code').notNull().default(''),
+  operationName: text('operation_name').notNull(),
+  sequence: integer('sequence').notNull(),
+  plannedQty: integer('planned_qty').notNull(),
+  goodQty: integer('good_qty').notNull().default(0),
+  defectQty: integer('defect_qty').notNull().default(0),
+  scrapQty: integer('scrap_qty').notNull().default(0),
+  reworkQty: integer('rework_qty').notNull().default(0),
+  status: text('status').notNull().default('pending'),
+  startedAt: text('started_at'),
+  completedAt: text('completed_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const operationReports = sqliteTable('operation_reports', {
+  id: text('id').primaryKey(),
+  reportNo: text('report_no').notNull().unique(),
+  cardId: text('card_id').notNull(),
+  cardCode: text('card_code').notNull(),
+  productionOrderId: text('production_order_id').notNull(),
+  operationId: text('operation_id').notNull(),
+  operationName: text('operation_name').notNull(),
+  reportType: text('report_type').notNull(),
+  goodQty: integer('good_qty').notNull().default(0),
+  defectQty: integer('defect_qty').notNull().default(0),
+  scrapQty: integer('scrap_qty').notNull().default(0),
+  reworkQty: integer('rework_qty').notNull().default(0),
+  operator: text('operator').notNull().default(''),
+  inspector: text('inspector').notNull().default(''),
+  equipment: text('equipment').notNull().default(''),
+  defectReason: text('defect_reason').notNull().default(''),
+  manualReason: text('manual_reason').notNull().default(''),
+  remark: text('remark').notNull().default(''),
+  createdBy: text('created_by').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const qualityAbnormalRecords = sqliteTable('quality_abnormal_records', {
+  id: text('id').primaryKey(),
+  abnormalNo: text('abnormal_no').notNull().unique(),
+  cardId: text('card_id').notNull(),
+  reportId: text('report_id').notNull(),
+  cardCode: text('card_code').notNull(),
+  operationId: text('operation_id').notNull(),
+  operationName: text('operation_name').notNull(),
+  abnormalType: text('abnormal_type').notNull(),
+  quantity: integer('quantity').notNull(),
+  reason: text('reason').notNull().default(''),
+  status: text('status').notNull().default('open'),
+  handlingMethod: text('handling_method').notNull().default(''),
+  handledBy: text('handled_by').notNull().default(''),
+  handledAt: text('handled_at'),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const wipTransactions = sqliteTable('wip_transactions', {
+  id: text('id').primaryKey(),
+  cardId: text('card_id').notNull(),
+  reportId: text('report_id'),
+  cardCode: text('card_code').notNull(),
+  operationId: text('operation_id'),
+  operationName: text('operation_name').notNull().default(''),
+  transactionType: text('transaction_type').notNull(),
+  qtyDelta: integer('qty_delta').notNull().default(0),
+  qtyAfter: integer('qty_after').notNull().default(0),
+  fromOperation: text('from_operation').notNull().default(''),
+  toOperation: text('to_operation').notNull().default(''),
+  createdBy: text('created_by').notNull().default(''),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const inventoryBalances = sqliteTable('inventory_balances', {
+  id: text('id').primaryKey(),
+  itemId: text('item_id').notNull(),
+  itemCode: text('item_code').notNull().default(''),
+  itemName: text('item_name').notNull().default(''),
+  itemType: text('item_type').notNull().default(''),
+  projectId: text('project_id'),
+  projectCode: text('project_code').notNull().default(''),
+  customerId: text('customer_id'),
+  customerName: text('customer_name').notNull().default(''),
+  warehouseId: text('warehouse_id'),
+  warehouseName: text('warehouse_name').notNull().default(''),
+  locationId: text('location_id'),
+  locationCode: text('location_code').notNull().default(''),
+  inventoryStatus: text('inventory_status').notNull().default('available'),
+  quantity: integer('quantity').notNull().default(0),
+  unit: text('unit').notNull().default('pcs'),
+  sourceNo: text('source_no').notNull().default(''),
+  lastTransactionAt: text('last_transaction_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const inventoryTransactions = sqliteTable('inventory_transactions', {
+  id: text('id').primaryKey(),
+  transactionNo: text('transaction_no').notNull(),
+  itemId: text('item_id').notNull(),
+  itemCode: text('item_code').notNull().default(''),
+  itemName: text('item_name').notNull().default(''),
+  itemType: text('item_type').notNull().default(''),
+  projectId: text('project_id'),
+  projectCode: text('project_code').notNull().default(''),
+  customerId: text('customer_id'),
+  customerName: text('customer_name').notNull().default(''),
+  warehouseId: text('warehouse_id'),
+  warehouseName: text('warehouse_name').notNull().default(''),
+  locationId: text('location_id'),
+  locationCode: text('location_code').notNull().default(''),
+  transactionType: text('transaction_type').notNull(),
+  quantityChange: integer('quantity_change').notNull(),
+  beforeQuantity: integer('before_quantity').notNull().default(0),
+  afterQuantity: integer('after_quantity').notNull().default(0),
+  fromStatus: text('from_status').notNull().default(''),
+  toStatus: text('to_status').notNull().default(''),
+  sourceType: text('source_type').notNull(),
+  sourceId: text('source_id').notNull(),
+  sourceNo: text('source_no').notNull().default(''),
+  operatorId: text('operator_id').notNull().default(''),
+  operatorName: text('operator_name').notNull().default(''),
+  occurredAt: text('occurred_at').notNull(),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const inventoryHolds = sqliteTable('inventory_holds', {
+  id: text('id').primaryKey(),
+  holdNo: text('hold_no').notNull(),
+  itemId: text('item_id').notNull(),
+  itemCode: text('item_code').notNull().default(''),
+  itemName: text('item_name').notNull().default(''),
+  projectId: text('project_id'),
+  projectCode: text('project_code').notNull().default(''),
+  customerId: text('customer_id'),
+  customerName: text('customer_name').notNull().default(''),
+  warehouseId: text('warehouse_id').notNull(),
+  warehouseName: text('warehouse_name').notNull().default(''),
+  locationId: text('location_id'),
+  locationCode: text('location_code').notNull().default(''),
+  holdQuantity: integer('hold_quantity').notNull(),
+  processedQuantity: integer('processed_quantity').notNull().default(0),
+  remainingQuantity: integer('remaining_quantity').notNull(),
+  abnormalType: text('abnormal_type').notNull().default(''),
+  discoveryStage: text('discovery_stage').notNull().default(''),
+  responsibleParty: text('responsible_party').notNull().default(''),
+  handlingPlan: text('handling_plan').notNull().default(''),
+  status: text('status').notNull().default('pending'),
+  initiatorId: text('initiator_id').notNull().default(''),
+  handlerId: text('handler_id').notNull().default(''),
+  foundAt: text('found_at'),
+  expectedCloseAt: text('expected_close_at'),
+  isDeliveryAffected: integer('is_delivery_affected', { mode: 'boolean' }).notNull().default(false),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const operationLogs = sqliteTable('operation_logs', {
+  id: text('id').primaryKey(),
+  actor: text('actor').notNull().default(''),
+  action: text('action').notNull(),
+  entityType: text('entity_type').notNull(),
+  entityId: text('entity_id').notNull(),
+  detail: text('detail').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const parties = sqliteTable('parties', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  name: text('name').notNull(),
+  type: text('type').notNull().default('customer'),
+  contact: text('contact').notNull().default(''),
+  notes: text('notes').notNull().default(''),
+  status: text('status').notNull().default('active'),
+  created_at: text('created_at').notNull(),
+  updated_at: text('updated_at').notNull(),
+});
+
+export const customerOrders = sqliteTable('customer_orders', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  customerId: text('customer_id'),
+  customerName: text('customer_name').notNull().default(''),
+  sourceType: text('source_type').notNull().default('manual'),
+  sourceFileName: text('source_file_name').notNull().default(''),
+  demandVersion: integer('demand_version').notNull().default(1),
+  status: text('status').notNull().default('imported'),
+  requestedDate: text('requested_date').notNull().default(''),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const customerOrderItems = sqliteTable('customer_order_items', {
+  id: text('id').primaryKey(),
+  orderId: text('order_id').notNull(),
+  demandVersion: integer('demand_version').notNull().default(1),
+  productId: text('product_id'),
+  productCode: text('product_code').notNull().default(''),
+  productName: text('product_name').notNull().default(''),
+  materialId: text('material_id'),
+  quantity: integer('quantity').notNull(),
+  deliveredQuantity: integer('delivered_quantity').notNull().default(0),
+  dueDate: text('due_date').notNull().default(''),
+  status: text('status').notNull().default('open'),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const demandPlanVersions = sqliteTable('demand_plan_versions', {
+  id: text('id').primaryKey(),
+  orderId: text('order_id').notNull(),
+  version: integer('version').notNull(),
+  importedBy: text('imported_by').notNull().default(''),
+  changeSummary: text('change_summary').notNull().default(''),
+  rawPayload: text('raw_payload').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const materialReceipts = sqliteTable('material_receipts', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  materialId: text('material_id').notNull(),
+  orderItemId: text('order_item_id'),
+  supplierName: text('supplier_name').notNull().default(''),
+  warehouseCode: text('warehouse_code').notNull().default('MAIN'),
+  batchNo: text('batch_no').notNull().default(''),
+  quantity: integer('quantity').notNull(),
+  status: text('status').notNull().default('received'),
+  receivedBy: text('received_by').notNull().default(''),
+  receivedAt: text('received_at').notNull(),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const materialDeliveryPlans = sqliteTable('material_delivery_plans', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  materialId: text('material_id').notNull(),
+  materialName: text('material_name').notNull().default(''),
+  supplierName: text('supplier_name').notNull().default(''),
+  quantity: integer('quantity').notNull(),
+  plannedShipAt: text('planned_ship_at').notNull().default(''),
+  estimatedArrivalAt: text('estimated_arrival_at').notNull().default(''),
+  actualArrivalAt: text('actual_arrival_at').notNull().default(''),
+  logisticsTrackingNo: text('logistics_tracking_no').notNull().default(''),
+  vehicleInfo: text('vehicle_info').notNull().default(''),
+  delayReason: text('delay_reason').notNull().default(''),
+  status: text('status').notNull().default('pending'),
+  createdBy: text('created_by').notNull().default(''),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const warehouseReceipts = sqliteTable('warehouse_receipts', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  materialDeliveryPlanId: text('material_delivery_plan_id').notNull(),
+  materialId: text('material_id').notNull(),
+  materialName: text('material_name').notNull().default(''),
+  supplierName: text('supplier_name').notNull().default(''),
+  warehouseCode: text('warehouse_code').notNull().default('MAIN'),
+  batchNo: text('batch_no').notNull().default(''),
+  quantity: integer('quantity').notNull(),
+  receivedAt: text('received_at').notNull().default(''),
+  receivedBy: text('received_by').notNull().default(''),
+  status: text('status').notNull().default('received'),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const productionPlans = sqliteTable('production_plans', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  title: text('title').notNull(),
+  planDate: text('plan_date').notNull(),
+  orderLineId: text('order_line_id'),
+  projectCode: text('project_code'),
+  productCode: text('product_code'),
+  materialCode: text('material_code'),
+  planPeriod: text('plan_period'),
+  projectId: text('project_id'),
+  customerId: text('customer_id'),
+  productId: text('product_id'),
+  materialId: text('material_id'),
+  planQty: integer('plan_qty').notNull().default(0),
+  plannedQuantity: integer('planned_quantity').notNull().default(0),
+  dueDate: text('due_date').notNull().default(''),
+  priority: text('priority').notNull().default('medium'),
+  plannedStartAt: text('planned_start_at').notNull().default(''),
+  plannedFinishAt: text('planned_finish_at').notNull().default(''),
+  materialReadyStatus: text('material_ready_status').notNull().default('unknown'),
+  riskLevel: text('risk_level').notNull().default('medium'),
+  status: text('status').notNull().default('draft'),
+  createdBy: text('created_by').notNull().default(''),
+  releasedAt: text('released_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const productionPlanItems = sqliteTable('production_plan_items', {
+  id: text('id').primaryKey(),
+  planId: text('plan_id').notNull(),
+  orderItemId: text('order_item_id'),
+  productId: text('product_id').notNull(),
+  materialId: text('material_id'),
+  plannedQuantity: integer('planned_quantity').notNull(),
+  machineId: text('machine_id'),
+  plannedStartDate: text('planned_start_date').notNull().default(''),
+  plannedFinishDate: text('planned_finish_date').notNull().default(''),
+  status: text('status').notNull().default('draft'),
+  workOrderId: text('work_order_id'),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const deliveryPlans = sqliteTable('delivery_plans', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  orderId: text('order_id'),
+  plannedShipDate: text('planned_ship_date').notNull(),
+  status: text('status').notNull().default('draft'),
+  riskLevel: text('risk_level').notNull().default('low'),
+  riskReason: text('risk_reason').notNull().default(''),
+  createdBy: text('created_by').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const deliveryPlanItems = sqliteTable('delivery_plan_items', {
+  id: text('id').primaryKey(),
+  deliveryPlanId: text('delivery_plan_id').notNull(),
+  orderItemId: text('order_item_id'),
+  productId: text('product_id').notNull(),
+  quantity: integer('quantity').notNull(),
+  batchNo: text('batch_no').notNull().default(''),
+  riskReason: text('risk_reason').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const shipments = sqliteTable('shipments', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  deliveryPlanId: text('delivery_plan_id'),
+  orderId: text('order_id'),
+  orderLineId: text('order_line_id'),
+  orderItemId: text('order_item_id'),
+  demandId: text('demand_id'),
+  demandLineId: text('demand_line_id'),
+  productId: text('product_id'),
+  warehouseCode: text('warehouse_code').notNull().default('MAIN'),
+  locationCode: text('location_code').notNull().default(''),
+  batchNo: text('batch_no').notNull().default(''),
+  quantity: integer('quantity').notNull().default(0),
+  status: text('status').notNull().default('created'),
+  shippedAt: text('shipped_at'),
+  confirmedBy: text('confirmed_by').notNull().default(''),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const shipmentItems = sqliteTable('shipment_items', {
+  id: text('id').primaryKey(),
+  shipmentId: text('shipment_id').notNull(),
+  orderItemId: text('order_item_id'),
+  productId: text('product_id').notNull(),
+  quantity: integer('quantity').notNull(),
+  batchNo: text('batch_no').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const qualityIssues = sqliteTable('quality_issues', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  sourceType: text('source_type').notNull().default('manual'),
+  sourceId: text('source_id').notNull().default(''),
+  orderId: text('order_id'),
+  orderItemId: text('order_item_id'),
+  workOrderId: text('work_order_id'),
+  materialId: text('material_id'),
+  productId: text('product_id'),
+  severity: text('severity').notNull().default('medium'),
+  status: text('status').notNull().default('open'),
+  title: text('title').notNull(),
+  description: text('description').notNull().default(''),
+  quantity: integer('quantity').notNull().default(0),
+  freezeId: text('freeze_id'),
+  inventoryLockId: text('inventory_lock_id'),
+  handlingMethod: text('handling_method').notNull().default(''),
+  warehouseCode: text('warehouse_code').notNull().default('MAIN'),
+  locationCode: text('location_code').notNull().default(''),
+  batchNo: text('batch_no').notNull().default(''),
+  owner: text('owner').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  closedAt: text('closed_at'),
+});
+
+export const issueActions = sqliteTable('issue_actions', {
+  id: text('id').primaryKey(),
+  issueId: text('issue_id').notNull(),
+  action: text('action').notNull(),
+  message: text('message').notNull().default(''),
+  actor: text('actor').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const supplyChainEvents = sqliteTable('supply_chain_events', {
+  id: text('id').primaryKey(),
+  orderId: text('order_id'),
+  entityType: text('entity_type').notNull(),
+  entityId: text('entity_id').notNull(),
+  eventType: text('event_type').notNull(),
+  message: text('message').notNull().default(''),
+  actor: text('actor').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});
+
+export const projects = sqliteTable('projects', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  name: text('name').notNull(),
+  party_id: text('party_id'),
+  status: text('status').notNull().default('active'),
+  notes: text('notes').notNull().default(''),
+  created_at: text('created_at').notNull(),
+  updated_at: text('updated_at').notNull(),
+});
+
+export const product_materials = sqliteTable('product_materials', {
+  id: text('id').primaryKey(),
+  product_id: text('product_id').notNull(),
+  material_id: text('material_id').notNull(),
+  quantity: integer('quantity').notNull().default(1),
+  status: text('status').notNull().default('active'),
+  created_at: text('created_at').notNull(),
+  updated_at: text('updated_at').notNull(),
+});
+
+export const attachments = sqliteTable('attachments', {
+  id: text('id').primaryKey(),
+  entity_type: text('entity_type').notNull(),
+  entity_id: text('entity_id').notNull(),
+  file_name: text('file_name').notNull(),
+  content_type: text('content_type').notNull().default(''),
+  r2_key: text('r2_key').notNull(),
+  size_bytes: integer('size_bytes').notNull().default(0),
+  status: text('status').notNull().default('active'),
+  created_at: text('created_at').notNull(),
+  updated_at: text('updated_at').notNull(),
+});
+
+export const customerDemandLines = sqliteTable('customer_demand_lines', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  partyId: text('party_id').notNull(),
+  projectId: text('project_id'),
+  productId: text('product_id').notNull(),
+  quantity: integer('quantity').notNull(),
+  dueDate: text('due_date').notNull(),
+  priority: text('priority').notNull().default('medium'),
+  status: text('status').notNull().default('new'),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const orderLines = sqliteTable('order_lines', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  demandLineId: text('demand_line_id'),
+  partyId: text('party_id').notNull(),
+  projectId: text('project_id'),
+  productId: text('product_id').notNull(),
+  quantity: integer('quantity').notNull(),
+  deliveredQty: integer('delivered_qty').notNull().default(0),
+  dueDate: text('due_date').notNull(),
+  priority: text('priority').notNull().default('medium'),
+  status: text('status').notNull().default('draft'),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const customerDemands = sqliteTable('customer_demands', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull(),
+  customerId: text('customer_id'),
+  customerName: text('customer_name').notNull().default(''),
+  sourceType: text('source_type').notNull().default('manual'),
+  sourceFileName: text('source_file_name').notNull().default(''),
+  demandVersion: integer('demand_version').notNull().default(1),
+  status: text('status').notNull().default('imported'),
+  requestedDate: text('requested_date').notNull().default(''),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const demandLines = sqliteTable('demand_lines', {
+  id: text('id').primaryKey(),
+  demandId: text('demand_id').notNull(),
+  code: text('code').notNull().unique(),
+  customerId: text('customer_id'),
+  customerName: text('customer_name').notNull().default(''),
+  projectCode: text('project_code'),
+  productId: text('product_id'),
+  productCode: text('product_code').notNull().default(''),
+  productName: text('product_name').notNull().default(''),
+  sourceType: text('source_type').notNull().default('manual'),
+  quantity: integer('quantity').notNull(),
+  deliveredQuantity: integer('delivered_quantity').notNull().default(0),
+  unshippedQuantity: integer('unshipped_quantity').notNull().default(0),
+  status: text('status').notNull().default('confirmed'),
+  dueDate: text('due_date').notNull().default(''),
+  notes: text('notes').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const productionDemandLinks = sqliteTable('production_demand_links', {
+  id: text('id').primaryKey(),
+  productionPlanId: text('production_plan_id').notNull(),
+  demandLineId: text('demand_line_id').notNull(),
+  quantity: integer('quantity').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const warehouses = sqliteTable('warehouses', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  name: text('name').notNull(),
+  type: text('type').notNull().default('normal'),
+  status: text('status').notNull().default('active'),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const locations = sqliteTable('locations', {
+  id: text('id').primaryKey(),
+  warehouseCode: text('warehouse_code').notNull(),
+  code: text('code').notNull().unique(),
+  name: text('name').notNull(),
+  status: text('status').notNull().default('active'),
+  remark: text('remark').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const receipts = sqliteTable('receipts', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  sourceType: text('source_type').notNull().default('manual'),
+  status: text('status').notNull().default('draft'),
+  receivedDate: text('received_date').notNull(),
+  notes: text('notes').notNull().default(''),
+  createdBy: text('created_by').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const receiptItems = sqliteTable('receipt_items', {
+  id: text('id').primaryKey(),
+  receiptId: text('receipt_id').notNull(),
+  itemId: text('item_id').notNull(),
+  projectId: text('project_id'),
+  batchNo: text('batch_no').notNull().default(''),
+  quantity: integer('quantity').notNull(),
+  warehouseId: text('warehouse_id'),
+  locationId: text('location_id'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const issues = sqliteTable('issues', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  sourceType: text('source_type').notNull().default('manual'),
+  status: text('status').notNull().default('draft'),
+  issuedDate: text('issued_date').notNull(),
+  notes: text('notes').notNull().default(''),
+  createdBy: text('created_by').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const issueItems = sqliteTable('issue_items', {
+  id: text('id').primaryKey(),
+  issueId: text('issue_id').notNull(),
+  itemId: text('item_id').notNull(),
+  projectId: text('project_id'),
+  batchNo: text('batch_no').notNull().default(''),
+  quantity: integer('quantity').notNull(),
+  warehouseId: text('warehouse_id'),
+  locationId: text('location_id'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const stocktakes = sqliteTable('stocktakes', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  warehouseCode: text('warehouse_code').notNull(),
+  status: text('status').notNull().default('draft'),
+  stocktakeDate: text('stocktake_date').notNull(),
+  notes: text('notes').notNull().default(''),
+  createdBy: text('created_by').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const stocktakeItems = sqliteTable('stocktake_items', {
+  id: text('id').primaryKey(),
+  stocktakeId: text('stocktake_id').notNull(),
+  itemId: text('item_id').notNull(),
+  projectId: text('project_id'),
+  batchNo: text('batch_no').notNull().default(''),
+  systemQty: integer('system_qty').notNull(),
+  actualQty: integer('actual_qty').notNull(),
+  diffQty: integer('diff_qty').notNull(),
+  locationId: text('location_id'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});

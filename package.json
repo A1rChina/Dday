@@ -1,0 +1,41 @@
+{
+  "name": "cf-taskflow-hono",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --local --persist-to .wrangler/state",
+    "admin:dev": "vite --host 127.0.0.1 --port 5173",
+    "build:admin": "vite build",
+    "build": "npm run typecheck && npm run build:admin",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create taskflow",
+    "db:migrate:local": "wrangler d1 migrations apply taskflow --local",
+    "db:migrate:remote": "wrangler d1 migrations apply taskflow --remote",
+    "db:migrations:local": "wrangler d1 migrations list taskflow --local",
+    "db:migrations:remote": "wrangler d1 migrations list taskflow --remote",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.2.3",
+    "@ant-design/pro-components": "^2.8.10",
+    "@ant-design/pro-provider": "^2.16.2",
+    "@hono/zod-validator": "latest",
+    "@refinedev/antd": "^6.0.3",
+    "@refinedev/core": "^5.0.12",
+    "@vitejs/plugin-react": "^6.0.2",
+    "antd": "^5.29.3",
+    "dayjs": "^1.11.20",
+    "drizzle-orm": "^0.45.2",
+    "hono": "latest",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "vite": "^8.0.13",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "latest",
+    "typescript": "latest",
+    "wrangler": "latest"
+  }
+}
