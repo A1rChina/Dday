@@ -140,7 +140,7 @@ type Order = {
   updated_at: string;
   order_id: string; // compatibility
   order_code: string; // compatibility
-  order_item_id: string; // compatibility
+  demand_line_id: string;
   delivery_progress?: number;
   material_progress?: number;
   items?: OrderItem[];
@@ -734,7 +734,7 @@ export function OrderResource({ onPlanCreated }: { onPlanCreated?: (planId: stri
     try {
       const payload = {
         material_id: values.material_id,
-        order_item_id: selectedItemForReceive?.id,
+        demand_line_id: selectedItemForReceive?.id,
         supplier_name: values.supplier_name,
         warehouse_code: values.warehouse_code || 'MAIN',
         batch_no: values.batch_no || dayjs().format('YYYYMMDD'),
@@ -769,7 +769,7 @@ export function OrderResource({ onPlanCreated }: { onPlanCreated?: (planId: stri
       await apiRequest('/shipments', {
         method: 'POST',
         body: JSON.stringify({
-          order_item_id: selectedItemForShip?.id,
+          demand_line_id: selectedItemForShip?.id,
           quantity: values.quantity,
           warehouse_code: values.warehouse_code || 'MAIN',
           location_code: values.location_code || '',

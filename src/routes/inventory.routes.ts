@@ -54,7 +54,7 @@ inventoryRoutes.post(
   zValidator(
     'json',
     z.object({
-      freeze_id: z.string().trim().min(1),
+      hold_id: z.string().trim().min(1),
       notes: z.string().trim().max(1000).default(''),
       actor: z.string().trim().max(120).default(''),
     })
@@ -63,7 +63,7 @@ inventoryRoutes.post(
     try {
       const service = new MesService(c.env.DB);
       const input = c.req.valid('json');
-      return ok(c, await service.closeFreeze(input.freeze_id, { action: 'release', notes: input.notes, actor: input.actor }));
+      return ok(c, await service.closeFreeze(input.hold_id, { action: 'release', notes: input.notes, actor: input.actor }));
     } catch (e) {
       return fail(c, e instanceof Error ? e.message : 'failed to unfreeze inventory');
     }

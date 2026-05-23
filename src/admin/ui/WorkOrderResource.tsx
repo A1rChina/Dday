@@ -21,8 +21,8 @@ type WorkOrder = {
   code: string;
   production_plan_id: string;
   production_plan_code: string;
-  order_line_id: string;
-  order_line_code: string;
+  demand_line_id: string;
+  demand_line_code: string;
   product_code: string;
   product_name: string;
   material_code: string;

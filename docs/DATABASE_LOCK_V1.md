@@ -4,6 +4,7 @@
 - `DATABASE_CORE_FIELDS_V1_DRAFT.md` 和 `DATABASE_OPERATION_FIELDS_V1_DRAFT.md` 只作为历史草案保留。
 - Codex 后续不得绕过本文件自行新增、删除、修改数据库表和字段。
 - 任何数据库变更必须先提交数据库变更申请。
+- 2026-05-23 开发期已执行 V1 快速重建对齐，当前 baseline migration 为 `migrations/0001_v1_baseline.sql`；后续仍以本文档为唯一权威依据。
 
 ---
 

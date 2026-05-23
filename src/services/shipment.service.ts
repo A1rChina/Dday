@@ -1,7 +1,7 @@
 import { and, count, desc, eq, like, or } from 'drizzle-orm';
 import type { z } from 'zod';
 import { createDb, type AppDb } from '../db/client';
-import { customerDemands, demandLines, inventoryBalances, inventoryTransactions, products, shipments } from '../db/schema';
+import { customerDemands, demandLines, products, shipmentItems, shipments } from '../db/schema';
 import type { shipmentCreateSchema, shipmentListQuerySchema } from '../schemas/shipments';
 import { nowIso } from '../utils/date';
 import { newId } from '../utils/id';
@@ -38,12 +38,14 @@ export class ShipmentService {
   }
 
   async createShipment(input: ShipmentCreateInput, actor = '') {
-    const item = await this.db.select().from(demandLines).where(eq(demandLines.id, input.order_item_id)).get();
+    const demandLineId = input.demand_line_id;
+    const item = await this.db.select().from(demandLines).where(eq(demandLines.id, demandLineId)).get();
     if (!item) throw new Error('demand line not found');
     if (!item.productId) throw new Error('demand line has no linked product');
     if (['closed', 'cancelled'].includes(item.status)) throw new Error('closed or cancelled demand line cannot be shipped');
 
-    const remainingQty = item.quantity - item.deliveredQuantity;
+    const shippedQuantity = item.shippedQuantity || item.deliveredQuantity || 0;
+    const remainingQty = item.quantity - shippedQuantity;
     if (remainingQty <= 0) throw new Error('demand line is already fully delivered');
     if (input.quantity > remainingQty) throw new Error('shipment quantity exceeds remaining quantity');
 
@@ -55,9 +57,6 @@ export class ShipmentService {
       id: shipmentId,
       code: shipmentCode,
       deliveryPlanId: null,
-      orderId: item.demandId,
-      orderLineId: null,
-      orderItemId: item.id,
       demandId: item.demandId,
       demandLineId: item.id,
       productId: item.productId,
@@ -72,6 +71,20 @@ export class ShipmentService {
       createdAt: ts,
       updatedAt: ts,
     });
+    await this.db.insert(shipmentItems).values({
+      id: newId('shi'),
+      shipmentId,
+      demandLineId: item.id,
+      productId: item.productId,
+      quantity: input.quantity,
+      batchNo: input.batch_no ?? '',
+      warehouseId: input.warehouse_code,
+      locationId: input.location_code,
+      unit: 'pcs',
+      productCode: item.productCode,
+      productName: item.productName,
+      createdAt: ts,
+    });
 
     const ledger = new InventoryLedgerService(this.db as any);
     await ledger.createIssueTransaction({
@@ -85,13 +98,14 @@ export class ShipmentService {
       operatorName: actor,
     });
 
-    const nextDelivered = item.deliveredQuantity + input.quantity;
+    const nextDelivered = shippedQuantity + input.quantity;
     const lineStatus = nextDelivered >= item.quantity ? 'delivered' : 'partially_delivered';
 
     await this.db
       .update(demandLines)
       .set({
         deliveredQuantity: nextDelivered,
+        shippedQuantity: nextDelivered,
         unshippedQuantity: item.quantity - nextDelivered,
         status: lineStatus,
         updatedAt: ts,
@@ -127,9 +141,9 @@ export class ShipmentService {
       .select({
         id: shipments.id,
         code: shipments.code,
-        orderId: shipments.orderId,
+        orderId: shipments.demandId,
         orderCode: customerDemands.code,
-        orderItemId: shipments.orderItemId,
+        demandLineId: shipments.demandLineId,
         productId: shipments.productId,
         productCode: demandLines.productCode,
         productName: demandLines.productName,
@@ -184,7 +198,7 @@ function mapShipment(row: any) {
     code: row.code,
     order_id: row.orderId,
     order_code: row.orderCode,
-    order_item_id: row.orderItemId,
+    demand_line_id: row.demandLineId,
     product_id: row.productId,
     product_code: row.productCode,
     product_name: row.productName,

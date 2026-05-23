@@ -10,7 +10,7 @@ export const shipmentListQuerySchema = z.object({
 });
 
 export const shipmentCreateSchema = z.object({
-  order_item_id: idSchema,
+  demand_line_id: idSchema,
   quantity: z.number().int().positive(),
   warehouse_code: text(40).default('MAIN'),
   location_code: text(80).default(''),

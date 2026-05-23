@@ -34,7 +34,7 @@ type WorkOrder = { id: string; code: string; product_code: string; product_name:
 type ProcessCard = {
   id: string;
   card_code: string;
-  production_order_id: string;
+  work_order_id: string;
   production_order_code: string;
   product_name: string;
   product_code: string;
@@ -257,7 +257,7 @@ function ScanReportPanel() {
               <Form.Item name="inspector" label="检验人" rules={[{ required: true }]} style={{ width: '33%' }}>
                 <Input size="large" />
               </Form.Item>
-              <Form.Item name="equipment" label="设备" style={{ width: '34%' }}>
+              <Form.Item name="machine_id" label="设备" style={{ width: '34%' }}>
                 <Input size="large" />
               </Form.Item>
             </Space.Compact>
@@ -434,7 +434,7 @@ function CardManagementPanel() {
       )}
       <Modal title="根据生产订单生成流转卡" open={generateOpen} onCancel={() => setGenerateOpen(false)} onOk={generate} width={720}>
         <Form form={form} layout="vertical">
-          <Form.Item name="production_order_id" label="生产订单" rules={[{ required: true }]}>
+          <Form.Item name="work_order_id" label="生产订单" rules={[{ required: true }]}>
             <Select
               showSearch
               optionFilterProp="label"
@@ -504,7 +504,7 @@ function ReportQueryPanel() {
       <AppToolbar selectionTip={`共 ${total} 条报工记录`}>
         <Form form={form} layout="inline" onFinish={load}>
           <Form.Item name="date_from"><Input placeholder="开始日期 YYYY-MM-DD" /></Form.Item>
-          <Form.Item name="production_order_id"><Input placeholder="订单" /></Form.Item>
+          <Form.Item name="work_order_id"><Input placeholder="订单" /></Form.Item>
           <Form.Item name="product"><Input placeholder="产品" /></Form.Item>
           <Form.Item name="operation"><Input placeholder="工序" /></Form.Item>
           <Form.Item name="operator"><Input placeholder="操作者" /></Form.Item>
@@ -599,7 +599,7 @@ function ReportForm({ form, manual }: { form: any; manual?: boolean }) {
       <Space.Compact block>
         <Form.Item name="operator" label="操作者" rules={[{ required: true }]} style={{ width: '33%' }}><Input /></Form.Item>
         <Form.Item name="inspector" label="检验人" rules={[{ required: true }]} style={{ width: '33%' }}><Input /></Form.Item>
-        <Form.Item name="equipment" label="设备" style={{ width: '34%' }}><Input /></Form.Item>
+        <Form.Item name="machine_id" label="设备" style={{ width: '34%' }}><Input /></Form.Item>
       </Space.Compact>
       <Form.Item name="defect_reason" label="不良原因"><Input /></Form.Item>
       {manual && <Form.Item name="manual_reason" label="手动原因 / 修正原因" rules={[{ required: true }]}><Input.TextArea rows={2} /></Form.Item>}

@@ -41,7 +41,7 @@ export const orderUpdateSchema = z.object({
 
 export const receiptCreateSchema = z.object({
   material_id: idSchema,
-  order_item_id: idSchema.optional(),
+  demand_line_id: idSchema.optional(),
   supplier_name: text(160).default(''),
   warehouse_code: text(40).default('MAIN'),
   batch_no: text(80).default(''),
@@ -56,7 +56,7 @@ export const productionPlanCreateSchema = z.object({
   items: z
     .array(
       z.object({
-        order_item_id: idSchema.optional(),
+        demand_line_id: idSchema.optional(),
         product_id: idSchema,
         material_id: idSchema.optional(),
         planned_quantity: z.number().int().positive(),
@@ -76,7 +76,7 @@ export const deliveryPlanCreateSchema = z.object({
   items: z
     .array(
       z.object({
-        order_item_id: idSchema.optional(),
+        demand_line_id: idSchema.optional(),
         product_id: idSchema,
         quantity: z.number().int().positive(),
         batch_no: text(80).default(''),
@@ -89,8 +89,8 @@ export const deliveryPlanCreateSchema = z.object({
 export const qualityIssueCreateSchema = z.object({
   source_type: z.enum(['incoming', 'production', 'customer', 'warehouse']).default('warehouse'),
   source_id: text(80).default(''),
-  order_id: idSchema.optional(),
-  order_item_id: idSchema.optional(),
+  demand_id: idSchema.optional(),
+  demand_line_id: idSchema.optional(),
   work_order_id: idSchema.optional(),
   material_id: idSchema.optional(),
   product_id: idSchema.optional(),

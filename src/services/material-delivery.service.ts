@@ -1,7 +1,7 @@
 import { count, desc, eq, like, or } from 'drizzle-orm';
 import type { z } from 'zod';
 import { createDb, type AppDb } from '../db/client';
-import { materialDeliveryPlans, materials, warehouseReceipts } from '../db/schema';
+import { materialDeliveryPlans, materials, receiptItems, receipts } from '../db/schema';
 import type {
   materialDeliveryListQuerySchema,
   materialDeliveryPlanCreateSchema,
@@ -31,9 +31,7 @@ export class MaterialDeliveryService {
       ? or(
           like(materialDeliveryPlans.code, `%${query.q}%`),
           like(materialDeliveryPlans.materialName, `%${query.q}%`),
-          like(materialDeliveryPlans.supplierName, `%${query.q}%`),
-          like(materialDeliveryPlans.logisticsTrackingNo, `%${query.q}%`),
-          like(materialDeliveryPlans.vehicleInfo, `%${query.q}%`)
+          like(materialDeliveryPlans.supplierName, `%${query.q}%`)
         )
       : undefined;
     const total = await this.db.select({ value: count() }).from(materialDeliveryPlans).where(where);
@@ -44,16 +42,14 @@ export class MaterialDeliveryService {
       .orderBy(desc(materialDeliveryPlans.createdAt))
       .limit(query.pageSize)
       .offset((query.current - 1) * query.pageSize);
-
-    return { items: rows.map(mapPlan), total: total[0]?.value ?? 0 };
+    return { items: rows, total: total[0]?.value ?? 0 };
   }
 
   async createPlan(input: PlanCreateInput, actor = '') {
     const material = await this.db.select().from(materials).where(eq(materials.id, input.material_id)).get();
     if (!material) throw new Error('material not found');
-
-    const id = newId('mdp');
     const ts = nowIso();
+    const id = newId('mdp');
     await this.db.insert(materialDeliveryPlans).values({
       id,
       code: await this.nextCode('material_delivery_plans', 'MDP'),
@@ -73,8 +69,7 @@ export class MaterialDeliveryService {
       createdAt: ts,
       updatedAt: ts,
     });
-
-    return await this.getPlan(id);
+    return this.getPlan(id);
   }
 
   async getPlan(idOrCode: string) {
@@ -84,28 +79,14 @@ export class MaterialDeliveryService {
       .where(or(eq(materialDeliveryPlans.id, idOrCode), eq(materialDeliveryPlans.code, idOrCode)))
       .get();
     if (!plan) return null;
-    const receipts = await this.db
-      .select()
-      .from(warehouseReceipts)
-      .where(eq(warehouseReceipts.materialDeliveryPlanId, plan.id))
-      .orderBy(desc(warehouseReceipts.createdAt));
-    return { ...mapPlan(plan), receipts: receipts.map(mapReceipt) };
+    const planReceipts = await this.db.select().from(receipts).where(eq(receipts.sourceId, plan.id)).orderBy(desc(receipts.createdAt));
+    return { ...plan, receipts: planReceipts };
   }
 
   async updatePlan(id: string, input: PlanUpdateInput) {
-    const current = await this.db.select().from(materialDeliveryPlans).where(eq(materialDeliveryPlans.id, id)).get();
-    if (!current) return null;
-
-    let materialName = input.material_name;
-    if (input.material_id && input.material_id !== current.materialId && materialName === undefined) {
-      const material = await this.db.select().from(materials).where(eq(materials.id, input.material_id)).get();
-      if (!material) throw new Error('material not found');
-      materialName = material.name;
-    }
-
     const updateData: Partial<typeof materialDeliveryPlans.$inferInsert> = { updatedAt: nowIso() };
     if (input.material_id !== undefined) updateData.materialId = input.material_id;
-    if (materialName !== undefined) updateData.materialName = materialName;
+    if (input.material_name !== undefined) updateData.materialName = input.material_name;
     if (input.supplier_name !== undefined) updateData.supplierName = input.supplier_name;
     if (input.quantity !== undefined) updateData.quantity = input.quantity;
     if (input.planned_ship_at !== undefined) updateData.plannedShipAt = input.planned_ship_at;
@@ -116,160 +97,95 @@ export class MaterialDeliveryService {
     if (input.delay_reason !== undefined) updateData.delayReason = input.delay_reason;
     if (input.status !== undefined) updateData.status = input.status;
     if (input.notes !== undefined) updateData.notes = input.notes;
-
     await this.db.update(materialDeliveryPlans).set(updateData).where(eq(materialDeliveryPlans.id, id));
-    return await this.getPlan(id);
+    return this.getPlan(id);
   }
 
   async receivePlan(planId: string, input: Omit<ReceiptCreateInput, 'material_delivery_plan_id'>, actor = '') {
-    return await this.createReceipt({ ...input, material_delivery_plan_id: planId }, actor);
+    return this.createReceipt({ ...input, material_delivery_plan_id: planId }, actor);
   }
 
   async listReceipts(query: ListQuery) {
-    const where = query.q
-      ? or(
-          like(warehouseReceipts.code, `%${query.q}%`),
-          like(warehouseReceipts.materialName, `%${query.q}%`),
-          like(warehouseReceipts.supplierName, `%${query.q}%`),
-          like(warehouseReceipts.batchNo, `%${query.q}%`)
-        )
-      : undefined;
-    const total = await this.db.select({ value: count() }).from(warehouseReceipts).where(where);
+    const where = query.q ? like(receipts.code, `%${query.q}%`) : undefined;
+    const total = await this.db.select({ value: count() }).from(receipts).where(where);
     const rows = await this.db
       .select()
-      .from(warehouseReceipts)
+      .from(receipts)
       .where(where)
-      .orderBy(desc(warehouseReceipts.createdAt))
+      .orderBy(desc(receipts.createdAt))
       .limit(query.pageSize)
       .offset((query.current - 1) * query.pageSize);
-    return { items: rows.map(mapReceipt), total: total[0]?.value ?? 0 };
+    return { items: rows, total: total[0]?.value ?? 0 };
   }
 
   async createReceipt(input: ReceiptCreateInput, actor = '') {
-    const plan = await this.db
-      .select()
-      .from(materialDeliveryPlans)
-      .where(eq(materialDeliveryPlans.id, input.material_delivery_plan_id))
-      .get();
+    const plan = await this.db.select().from(materialDeliveryPlans).where(eq(materialDeliveryPlans.id, input.material_delivery_plan_id)).get();
     if (!plan) throw new Error('material delivery plan not found');
-    if (plan.status === 'closed') throw new Error('material delivery plan is closed');
-
+    const material = await this.db.select().from(materials).where(eq(materials.id, plan.materialId)).get();
     const ts = nowIso();
-    const receivedAt = input.received_at ?? ts;
-    const receivedBy = input.received_by || actor;
+    const receiptId = newId('rcp');
+    const code = await this.nextCode('receipts', 'RCP');
     const quantity = input.quantity ?? plan.quantity;
-
-    const id = newId('whr');
-    await this.db.insert(warehouseReceipts).values({
-      id,
-      code: await this.nextCode('warehouse_receipts', 'WHR'),
-      materialDeliveryPlanId: plan.id,
-      materialId: plan.materialId,
-      materialName: plan.materialName,
-      supplierName: plan.supplierName,
-      warehouseCode: input.warehouse_code,
-      batchNo: input.batch_no,
-      quantity,
-      receivedAt,
-      receivedBy,
-      status: input.status,
+    await this.db.insert(receipts).values({
+      id: receiptId,
+      code,
+      sourceType: 'material_delivery_plan',
+      sourceId: plan.id,
+      sourceNo: plan.code,
+      status: 'confirmed',
+      receivedDate: input.received_at || ts,
+      confirmedAt: ts,
+      confirmedBy: input.received_by || actor,
       notes: input.notes,
+      createdBy: actor,
       createdAt: ts,
       updatedAt: ts,
     });
-
-    const receipt = await this.db.select().from(warehouseReceipts).where(eq(warehouseReceipts.id, id)).get();
-    if (!receipt) throw new Error('warehouse receipt create failed');
-    const transaction = await this.ledger.createReceiptTransaction({
-      itemId: receipt.materialId,
-      itemCode: '', // Would need to fetch material for code, but let's leave blank as it's not strictly required by the new service if it's already there
-      itemName: receipt.materialName,
+    await this.db.insert(receiptItems).values({
+      id: newId('rit'),
+      receiptId,
+      itemId: plan.materialId,
       itemType: 'material',
-      warehouseId: receipt.warehouseCode, // note: here we map warehouseCode to warehouseId, ideally should match
-      warehouseName: receipt.warehouseCode,
-      locationId: input.location_code,
-      quantity: receipt.quantity,
-      sourceId: receipt.id,
-      sourceNo: receipt.code,
-      sourceType: 'material_delivery_receipt',
-      operatorName: receivedBy,
+      itemCode: material?.code || '',
+      itemName: material?.name || plan.materialName,
+      projectId: null,
+      batchNo: input.batch_no,
+      quantity,
+      unit: material?.unit || 'pcs',
+      warehouseId: input.warehouse_code,
+      locationId: input.location_code || null,
+      inventoryStatus: 'available',
+      createdAt: ts,
+      updatedAt: ts,
     });
-
-    await this.db
-      .update(materialDeliveryPlans)
-      .set({
-        actualArrivalAt: receivedAt,
-        status: input.status === 'closed' ? 'closed' : 'arrived',
-        updatedAt: ts,
-      })
-      .where(eq(materialDeliveryPlans.id, plan.id));
-
-    return {
-      receipt: await this.getReceipt(id),
-      inventory_transaction: transaction,
-      material_delivery_plan: await this.getPlan(plan.id),
-    };
+    const transaction = await this.ledger.createReceiptTransaction({
+      itemId: plan.materialId,
+      itemCode: material?.code || '',
+      itemName: material?.name || plan.materialName,
+      itemType: 'material',
+      warehouseId: input.warehouse_code,
+      locationId: input.location_code,
+      quantity,
+      sourceId: receiptId,
+      sourceNo: code,
+      sourceType: 'receipt',
+      operatorName: actor,
+    });
+    await this.db.update(materialDeliveryPlans).set({ actualArrivalAt: input.received_at || ts, status: 'arrived', updatedAt: ts }).where(eq(materialDeliveryPlans.id, plan.id));
+    return { receipt: await this.getReceipt(receiptId), inventory_transaction: transaction, material_delivery_plan: await this.getPlan(plan.id) };
   }
 
   async getReceipt(idOrCode: string) {
-    const receipt = await this.db
-      .select()
-      .from(warehouseReceipts)
-      .where(or(eq(warehouseReceipts.id, idOrCode), eq(warehouseReceipts.code, idOrCode)))
-      .get();
-    return receipt ? mapReceipt(receipt) : null;
+    return this.db.select().from(receipts).where(or(eq(receipts.id, idOrCode), eq(receipts.code, idOrCode))).get();
   }
 
-  private async nextCode(table: 'material_delivery_plans' | 'warehouse_receipts', prefix: string) {
+  private async nextCode(table: 'material_delivery_plans' | 'receipts', prefix: string) {
     const date = new Date().toISOString().slice(0, 10).replaceAll('-', '');
     const codePrefix = `${prefix}-${date}-`;
     const rows =
       table === 'material_delivery_plans'
         ? await this.db.select({ value: count() }).from(materialDeliveryPlans).where(like(materialDeliveryPlans.code, `${codePrefix}%`))
-        : await this.db.select({ value: count() }).from(warehouseReceipts).where(like(warehouseReceipts.code, `${codePrefix}%`));
+        : await this.db.select({ value: count() }).from(receipts).where(like(receipts.code, `${codePrefix}%`));
     return `${codePrefix}${String((rows[0]?.value ?? 0) + 1).padStart(3, '0')}`;
   }
 }
-
-function mapPlan(row: typeof materialDeliveryPlans.$inferSelect) {
-  return {
-    id: row.id,
-    code: row.code,
-    material_id: row.materialId,
-    material_name: row.materialName,
-    supplier_name: row.supplierName,
-    quantity: row.quantity,
-    planned_ship_at: row.plannedShipAt,
-    estimated_arrival_at: row.estimatedArrivalAt,
-    actual_arrival_at: row.actualArrivalAt,
-    logistics_tracking_no: row.logisticsTrackingNo,
-    vehicle_info: row.vehicleInfo,
-    delay_reason: row.delayReason,
-    status: row.status,
-    created_by: row.createdBy,
-    notes: row.notes,
-    created_at: row.createdAt,
-    updated_at: row.updatedAt,
-  };
-}
-
-function mapReceipt(row: typeof warehouseReceipts.$inferSelect) {
-  return {
-    id: row.id,
-    code: row.code,
-    material_delivery_plan_id: row.materialDeliveryPlanId,
-    material_id: row.materialId,
-    material_name: row.materialName,
-    supplier_name: row.supplierName,
-    warehouse_code: row.warehouseCode,
-    batch_no: row.batchNo,
-    quantity: row.quantity,
-    received_at: row.receivedAt,
-    received_by: row.receivedBy,
-    status: row.status,
-    notes: row.notes,
-    created_at: row.createdAt,
-    updated_at: row.updatedAt,
-  };
-}
-

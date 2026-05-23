@@ -14,7 +14,6 @@ export const productionPlanStatusSchema = z.enum(['draft', 'released', 'pending'
 export const workOrderStatusSchema = z.enum(['created', 'released', 'running', 'paused', 'completed', 'cancelled']);
 
 export const productionPlanCreateSchema = z.object({
-  order_line_id: idSchema.optional(),
   product_id: idSchema,
   material_id: idSchema.optional(),
   planned_quantity: z.number().int().positive(),

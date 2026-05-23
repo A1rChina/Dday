@@ -68,7 +68,7 @@ type Project = {
   name: string;
   customer_id?: string;
   customer_name?: string;
-  party_id?: string;
+  customer_id?: string;
   remark?: string;
   notes?: string;
   is_active: number;
@@ -86,7 +86,7 @@ type Product = {
   supplier_id?: string;
   supplier_name: string;
   manufacturing_factory: string;
-  profile_code: string;
+  material_id: string;
   profile_material_name: string;
   unit_usage: number;
   safety_stock: number;
@@ -196,7 +196,7 @@ export function ProductResource() {
 
       const projects = pRaw
         .filter((item: any) => item.status === 'active' || item.is_active === 1 || item.status !== 'inactive')
-        .map((item: any) => ({ value: item.projectId || item.id || item.project_id, label: item.projectName || item.name || item.project_name, code: item.code || item.projectCode || item.project_code, customerId: item.party_id || item.customerId || item.customer_id }))
+        .map((item: any) => ({ value: item.projectId || item.id || item.project_id, label: item.projectName || item.name || item.project_name, code: item.code || item.projectCode || item.project_code, customerId: item.customerId || item.customer_id }))
         .filter((item: any) => item.value !== undefined && item.label !== undefined);
 
       const factories = fRaw
@@ -255,7 +255,7 @@ export function ProductResource() {
         ? updateRecord({ resource, id: editing.id, values })
         : createRecord({ resource, values }));
       await invalidate({ resource, invalidates: ['list'] });
-      if (drawerType === 'products') await invalidate({ resource: 'project-parts', invalidates: ['list'] });
+      if (drawerType === 'products') await invalidate({ resource: 'products', invalidates: ['list'] });
       message.success('保存成功');
       closeDrawer();
       return true;
@@ -303,7 +303,7 @@ export function ProductResource() {
       dataIndex: 'customer_name',
       width: 180,
       render: (value: string, record: Project) =>
-        value || baseOptions.customers.find((item) => item.value === (record.customer_id || record.party_id))?.label || '-',
+        value || baseOptions.customers.find((item) => item.value === record.customer_id)?.label || '-',
     },
     { title: '状态', width: 90, render: (_: any, record: Project) => <AppStatusTag status={activeValue(record)} statusMap={statusMap} /> },
     { title: '备注', dataIndex: 'remark', ellipsis: true },
@@ -317,7 +317,7 @@ export function ProductResource() {
     { title: '项目', dataIndex: 'project_name', width: 160, render: (value: string, record: Product) => value || record.project_code || '-' },
     { title: '型材厂商', dataIndex: 'supplier_name', width: 220 },
     { title: '制造工厂', dataIndex: 'manufacturing_factory', width: 120 },
-    { title: '型材编码', dataIndex: 'profile_code', width: 160 },
+    { title: '型材', dataIndex: 'material_id', width: 160 },
     { title: '型材名称', dataIndex: 'profile_material_name', width: 180, ellipsis: true },
     { title: '单位用量', dataIndex: 'unit_usage', width: 100 },
     { title: '安全/预警库存', width: 130, render: (_: any, record: Product) => `${record.safety_stock || 0} / ${record.warning_stock || 0}` },
@@ -630,7 +630,7 @@ function ProductForm({
           <div className="mes-drawer-form-grid">
             <FieldView label="型材厂商" value={supplierOptions.find(o => o.value === initialValues?.supplier_id)?.label || initialValues?.supplier_id} />
             <FieldView label="制造工厂" value={factoryOptions.find(o => o.value === initialValues?.manufacturing_factory)?.label || initialValues?.manufacturing_factory} />
-            <FieldView label="型材编码" value={initialValues?.profile_code} />
+            <FieldView label="型材" value={initialValues?.material_id} />
             <FieldView label="型材名称" value={initialValues?.profile_material_name} />
             <FieldView label="单位" value={initialValues?.unit} />
             <FieldView label="单位用量" value={initialValues?.unit_usage} />
@@ -686,7 +686,7 @@ function ProductForm({
               placeholder="请选择制造工厂"
             />
           </Form.Item>
-          <Form.Item name="profile_code" label="型材编码">
+          <Form.Item name="material_id" label="型材">
             <Input placeholder="留空时按零件号自动生成" />
           </Form.Item>
           <Form.Item name="profile_material_name" label="型材名称">
@@ -782,7 +782,7 @@ function normalizeRecordForForm(type: MasterTab, record: any) {
     return {
       code: record.code,
       name: record.name,
-      customer_id: record.customer_id || record.party_id,
+      customer_id: record.customer_id,
       status: activeValue(record),
       remark: record.remark || record.notes,
     };
@@ -796,7 +796,7 @@ function normalizeRecordForForm(type: MasterTab, record: any) {
       supplier_id: record.supplier_id,
       manufacturing_factory: record.manufacturing_factory,
       unit: record.unit,
-      profile_code: record.profile_code,
+      material_id: record.material_id,
       profile_material_name: record.profile_material_name,
       unit_usage: record.unit_usage,
       safety_stock: record.safety_stock,

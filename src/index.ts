@@ -30,8 +30,6 @@ import { warehouseReceiptRoutes } from './routes/warehouse-receipts.routes';
 import { customerRoutes } from './routes/customers.routes';
 import { profileSupplierRoutes } from './routes/profile-suppliers.routes';
 import { manufacturingFactoryRoutes } from './routes/manufacturing-factories.routes';
-import { partRoutes } from './routes/parts.routes';
-import { projectPartRoutes } from './routes/project-parts.routes';
 import { inventoryBalanceRoutes, inventoryLockRoutes, inventoryTransactionRoutes } from './routes/inventory-resource.routes';
 import { shipmentRoutes } from './routes/shipments.routes';
 import { projectRoutes } from './routes/projects.routes';
@@ -55,7 +53,7 @@ app.get('/healthz', async (c) => {
     binding: Boolean(db),
     connected: false,
     schema_ready: false,
-    order_count: null as number | null,
+    demand_count: null as number | null,
     error: null as string | null,
   };
 
@@ -64,9 +62,9 @@ app.get('/healthz', async (c) => {
       await db.prepare('SELECT 1').first();
       database.connected = true;
 
-      const row = await db.prepare('SELECT COUNT(*) AS count FROM customer_orders').first<{ count: number }>();
+      const row = await db.prepare('SELECT COUNT(*) AS count FROM customer_demands').first<{ count: number }>();
       database.schema_ready = true;
-      database.order_count = row?.count ?? 0;
+      database.demand_count = row?.count ?? 0;
     } catch (e) {
       database.error = e instanceof Error ? e.message : 'D1 health check failed';
     }
@@ -114,8 +112,6 @@ app.route('/api/warehouse-receipts', warehouseReceiptRoutes);
 app.route('/api/customers', customerRoutes);
 app.route('/api/profile-suppliers', profileSupplierRoutes);
 app.route('/api/manufacturing-factories', manufacturingFactoryRoutes);
-app.route('/api/parts', partRoutes);
-app.route('/api/project-parts', projectPartRoutes);
 app.route('/api/inventory-balances', inventoryBalanceRoutes);
 app.route('/api/inventory-locks', inventoryLockRoutes);
 app.route('/api/inventory-transactions', inventoryTransactionRoutes);

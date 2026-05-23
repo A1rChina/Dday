@@ -16,6 +16,14 @@ Dday V1 数据库结构唯一权威依据：
 - 不允许自行新增 migration。
 - 不允许恢复 deprecated 表作为新功能事实源。
 
+## 开发期 V1 baseline 例外
+
+本项目已在开发期完成一次 V1 快速重建，对应说明见：
+
+- `docs/DATABASE_DEV_FAST_RESET_V1.md`
+
+该例外仅适用于本次开发期清理。完成后，后续 Codex 仍不得绕过 `docs/DATABASE_LOCK_V1.md` 自行修改数据库结构。
+
 ## Codex 允许事项
 
 Codex 可以在不改数据库的前提下修改：

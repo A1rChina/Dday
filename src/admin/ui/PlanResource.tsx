@@ -22,8 +22,8 @@ type Plan = {
   id: string;
   code: string;
   title: string;
-  order_line_id: string;
-  order_line_code: string;
+  demand_line_id: string;
+  demand_line_code: string;
   product_id: string;
   product_code: string;
   product_name: string;

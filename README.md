@@ -56,6 +56,7 @@ Dday V1 数据库结构已锁定。
 数据库修改禁令：
 
 - `docs/CODEX_DB_CHANGE_POLICY.md`
+- `docs/DATABASE_DEV_FAST_RESET_V1.md`
 
 历史草案：
 
@@ -74,6 +75,8 @@ Dday V1 数据库结构已锁定。
 - 质量异常统一使用 `quality_issues + inventory_holds + issue_actions`。
 - 发货统一使用 `shipments + shipment_items`。
 - 报工统一使用 `work_order_steps + operation_reports`。
+
+开发期数据库已采用单一 V1 baseline migration：`migrations/0001_v1_baseline.sql`。旧的分段 migration 已清理，deprecated 表不再作为 V1 schema 的一部分。
 
 
 ## 本地准备

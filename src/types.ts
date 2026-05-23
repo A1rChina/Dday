@@ -47,7 +47,7 @@ export type Project = {
   id: string;
   code: string;
   name: string;
-  party_id: string | null;
+  customer_id: string | null;
   status: 'active' | 'inactive';
   notes: string;
   created_at: string;
@@ -77,7 +77,6 @@ export type Product = {
   status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
-  party_id: string | null;
   project_id: string | null;
 };
 
@@ -216,7 +215,7 @@ export type InventoryMovement = {
   product_id: string | null;
   work_order_id: string | null;
   report_id: string | null;
-  freeze_id: string | null;
+  inventory_lock_id: string | null;
   movement_type: 'adjust' | 'issue' | 'finish' | 'freeze' | 'unfreeze' | 'scrap' | 'return' | 'ship';
   qty_delta: number;
   frozen_delta: number;
@@ -257,10 +256,10 @@ export type MaterialFreeze = {
   closed_at: string | null;
 };
 
-export type CustomerDemandLine = {
+export type DemandLine = {
   id: string;
   code: string;
-  party_id: string;
+  customer_id: string;
   project_id: string | null;
   product_id: string;
   quantity: number;
@@ -272,11 +271,11 @@ export type CustomerDemandLine = {
   updated_at: string;
 };
 
-export type OrderLine = {
+export type ProductionDemandLine = {
   id: string;
   code: string;
   demand_line_id: string | null;
-  party_id: string;
+  customer_id: string;
   project_id: string | null;
   product_id: string;
   quantity: number;

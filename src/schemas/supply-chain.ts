@@ -34,7 +34,7 @@ export const updateOrderStatusSchema = z.object({
 
 export const receiveMaterialSchema = z.object({
   material_id: idSchema,
-  order_item_id: idSchema.optional(),
+  demand_line_id: idSchema.optional(),
   supplier_name: text(160).default(''),
   warehouse_code: text(40).default('MAIN'),
   batch_no: text(80).default(''),
@@ -44,7 +44,7 @@ export const receiveMaterialSchema = z.object({
 });
 
 export const createProductionPlanItemSchema = z.object({
-  order_item_id: idSchema.optional(),
+  demand_line_id: idSchema.optional(),
   product_id: idSchema,
   material_id: idSchema.optional(),
   planned_quantity: z.number().int().positive(),
@@ -62,14 +62,14 @@ export const createProductionPlanSchema = z.object({
 });
 
 export const createDeliveryPlanItemSchema = z.object({
-  order_item_id: idSchema.optional(),
+  demand_line_id: idSchema.optional(),
   product_id: idSchema,
   quantity: z.number().int().positive(),
   batch_no: text(80).default(''),
 });
 
 export const createDeliveryPlanSchema = z.object({
-  order_id: idSchema.optional(),
+  demand_id: idSchema.optional(),
   planned_ship_date: dateSchema,
   created_by: text(120).default(''),
   items: z.array(createDeliveryPlanItemSchema).min(1).max(100),
@@ -83,8 +83,8 @@ export const confirmShipmentSchema = z.object({
 export const createQualityIssueSchema = z.object({
   source_type: text(80).default('manual'),
   source_id: text(80).default(''),
-  order_id: idSchema.optional(),
-  order_item_id: idSchema.optional(),
+  demand_id: idSchema.optional(),
+  demand_line_id: idSchema.optional(),
   work_order_id: idSchema.optional(),
   material_id: idSchema.optional(),
   product_id: idSchema.optional(),

@@ -7,7 +7,7 @@ export const reportingListQuerySchema = z.object({
   current: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(1000).default(20),
   q: text(160).optional(),
-  production_order_id: text(80).optional(),
+  work_order_id: text(80).optional(),
   product: text(160).optional(),
   operation: text(160).optional(),
   operator: text(120).optional(),
@@ -18,7 +18,7 @@ export const reportingListQuerySchema = z.object({
 });
 
 export const generateProcessCardsSchema = z.object({
-  production_order_id: idSchema,
+  work_order_id: idSchema,
   quantities: z.array(z.coerce.number().int().positive()).min(1).max(100),
   drawing_no: text(120).default(''),
   created_by: text(120).default(''),
@@ -42,7 +42,7 @@ export const operationReportSchema = z.object({
   rework_qty: z.coerce.number().int().min(0).default(0),
   operator: text(120).default(''),
   inspector: text(120).default(''),
-  equipment: text(120).default(''),
+  machine_id: text(120).default(''),
   defect_reason: text(500).default(''),
   manual_reason: text(500).default(''),
   remark: text(1000).default(''),
