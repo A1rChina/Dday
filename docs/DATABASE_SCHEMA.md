@@ -1,311 +1,315 @@
-# Database Schema Guide
+# 数据库表结构说明
 
-The database is Cloudflare D1 SQLite, modeled in `src/db/schema.ts` with Drizzle. The schema covers RBAC, master data, demand/order flow, production execution, warehouse inventory, quality, delivery, shipment, and reporting.
+本文档用于解释 Dday 项目中各张 D1 数据表的用途。表结构以 `src/db/schema.ts` 中的 Drizzle 定义为准，迁移历史位于 `migrations` 目录。
 
-## System And Security
+## 系统与权限
 
 ### `users`
 
-Application users. Stores login username, password hash, display name, role, active flag, and timestamps.
+系统用户表。保存用户名、密码哈希、显示名称、角色、是否启用和创建更新时间。
 
 ### `roles`
 
-Role definitions such as admin, planner, operator, or viewer. Used by RBAC.
+角色定义表。用于区分管理员、计划员、操作员、查看者等角色。
 
 ### `permissions`
 
-Atomic permission points grouped by module and action.
+权限点表。按模块和动作定义细粒度权限。
 
 ### `role_permissions`
 
-Join table between roles and permissions.
+角色和权限点的关联表。
 
 ### `operation_logs`
 
-Audit log for create/update/delete and other important entity operations.
+操作日志表。记录关键实体的新增、修改、删除等行为，便于审计。
 
-## Master Data
+## 基础资料
 
 ### `customers`
 
-Customer master data with contact and delivery address information.
+客户资料表。保存客户名称、简称、联系人、电话、送货地址、状态和备注。
 
 ### `profile_suppliers`
 
-Supplier master data, including contact details, address, lead time, status, and remarks.
+供应商资料表。保存供应商名称、简称、联系人、电话、地址、默认交期、状态和备注。
 
 ### `parts`
 
-Part/profile material master data. Stores part ID, name, part number, unit, status, and remark.
+型材/部件资料表。保存部件编号、名称、单位、状态和备注。
 
 ### `manufacturing_factories`
 
-Factory master data. Used to bind project parts/products to manufacturing locations.
+生产工厂表。用于维护生产工厂编码、名称、状态和备注。
 
 ### `projects`
 
-Project master data. Connects project code/name to a customer/party and lifecycle status.
+项目表。保存项目编码、名称、关联客户、状态和备注。
 
 ### `project_parts`
 
-Project-specific part configuration. Stores customer, supplier, factory, profile material code/name, unit usage, safety stock, warning stock, and status.
+项目型材配置表。描述某个项目下的型材、客户、供应商、生产工厂、型材编码、型材名称、单位用量、安全库存和预警库存。
 
 ### `products`
 
-Product master data used by orders, production, and work orders. Includes product code/name, unit, process route, project/customer relation, factory, and profile code.
+产品表。保存产品编码、名称、单位、工艺路线、项目、客户、工厂、型材编码等信息，是订单、计划和工单的重要主数据。
 
 ### `product_materials`
 
-Mapping between products and required materials.
+产品和物料的关联表。描述产品所需物料。
 
 ### `materials`
 
-Material master data for production and supply flows.
+物料资料表。用于生产和供应链流程中的物料主数据。
 
 ### `parties`
 
-Generic party table used by some newer order/project flows. Can represent customer or supplier-like entities.
+通用往来方表。部分新流程中用于统一表示客户、供应商等业务主体。
 
 ### `attachments`
 
-Metadata for uploaded files or external file references attached to business documents.
+附件表。保存业务单据相关文件的元数据。
 
-## Process And Resource Master Data
+## 工艺与资源
 
 ### `processes`
 
-Manufacturing process definitions.
+工序表。定义生产过程中的工序。
 
 ### `machines`
 
-Machine/equipment definitions.
+设备表。维护设备编号、名称、状态等信息。
 
 ### `work_resources`
 
-Production resources that can be assigned to work orders or process steps.
+生产资源表。用于工单、工序或报工中的资源分配。
 
 ### `work_order_steps`
 
-Step-level routing/progress records for each work order.
+工单工序步骤表。记录每个工单下的工序顺序、计划数量、完成数量、不良数量、设备和状态。
 
-## Demand And Order Flow
+## 订单与需求
 
 ### `customer_orders`
 
-Customer order header. Stores order code, customer, source type/file, requested date, status, and notes.
+客户订单主表。保存订单号、客户、来源类型、来源文件、需求日期、状态和备注。
 
 ### `customer_order_items`
 
-Order lines for products/materials, quantities, due dates, and current production/shipment status.
+客户订单明细表。保存产品、物料、数量、交期、生产状态和出货状态。
 
 ### `demand_plan_versions`
 
-Version records for demand planning changes or imported demand snapshots.
+需求计划版本表。用于记录导入需求或计划变更的版本。
 
 ### `customer_demands`
 
-Demand header for an alternate demand management flow.
+客户需求主表。用于另一套需求池流程。
 
 ### `demand_lines`
 
-Demand line details, including material/product, quantity, delivery date, and status.
+需求明细表。保存需求对应的产品、物料、数量、交期和状态。
 
 ### `customer_demand_lines`
 
-Additional demand line model used by newer demand pool flows.
+客户需求明细扩展表。用于新版需求池或跨模块追溯。
 
 ### `order_lines`
 
-Normalized order-line table used for cross-module planning and fulfillment tracking.
+订单行标准化表。用于连接订单、计划、生产和交付。
 
 ### `production_demand_links`
 
-Join table connecting production plans/work orders to originating demand lines.
+生产需求关联表。连接生产计划、工单与来源需求。
 
-## Production Planning And Execution
+## 生产计划与执行
 
 ### `production_plans`
 
-Production plan header. Stores plan date, title, customer/project/product/material references, quantities, date windows, readiness status, risk level, and lifecycle status.
+生产计划主表。保存计划编号、标题、计划日期、订单、项目、客户、产品、物料、计划数量、计划时间、齐套状态、风险等级和计划状态。
 
 ### `production_plan_items`
 
-Line-level planned production items under a production plan.
+生产计划明细表。保存计划下的产品、物料、计划数量、计划开始和结束日期。
 
 ### `work_orders`
 
-Executable production work orders. Tracks product/material, planned quantity, reported/good/defect/scrap quantities, dates, status, current step, and completion/closure timestamps.
+生产工单表。保存工单编号、产品、物料、计划数量、报工数量、良品、不良、报废、计划日期、当前工序、状态和关闭时间。
 
 ### `production_reports`
 
-Production reporting records. Captures reported quantities, good/defect/scrap output, operator, and timestamps.
+生产报工表。记录工单报工数量、良品、不良、报废、操作人和时间。
 
 ### `process_cards`
 
-Process card definitions and printable/reportable process documents.
+工艺卡表。保存工艺卡、打印和报工所需的过程信息。
 
 ### `route_operations`
 
-Operations in a process route, including sequence and process/resource metadata.
+工艺路线工序表。描述工艺路线中的工序顺序和资源要求。
 
 ### `operation_reports`
 
-Detailed operation-level reports from production execution.
+工序报工表。记录更细粒度的工序执行结果。
 
 ### `wip_transactions`
 
-Work-in-progress inventory movements during production.
+在制品流水表。记录生产过程中的在制品流转。
 
-## Inventory And Warehouse
+## 仓储与库存
 
 ### `inventory_balances`
 
-Current stock ledger by item, project, customer, warehouse, location, and inventory status. This is the main table for inventory overview and detail queries.
+库存余额表。表示当前库存状态，是库存总览和库存明细的核心表。
 
-Important fields:
+关键字段：
 
-- `item_id`, `item_code`, `item_name`, `item_type`: inventory object identity.
-- `project_id`, `project_code`: project dimension.
-- `customer_id`, `customer_name`: customer dimension.
-- `warehouse_id`, `warehouse_name`, `location_id`, `location_code`: warehouse dimensions.
-- `inventory_status`: available/frozen/held/scrap-style stock state.
-- `quantity`, `unit`: current quantity.
-- `source_no`: last related source document number.
-- `last_transaction_at`, `updated_at`: traceability timestamps.
+- `item_id`、`item_code`、`item_name`、`item_type`：库存对象。
+- `project_id`、`project_code`：项目维度。
+- `customer_id`、`customer_name`：客户维度。
+- `warehouse_id`、`warehouse_name`：仓库维度。
+- `location_id`、`location_code`：库位维度。
+- `inventory_status`：库存状态，例如可用、冻结、质检冻结、报废。
+- `quantity`、`unit`：当前数量和单位。
+- `source_no`：最近来源单据号。
+- `last_transaction_at`：最近库存流水时间。
+- `updated_at`：余额更新时间。
 
 ### `inventory_transactions`
 
-Immutable inventory movement ledger. Every receipt, issue, adjustment, freeze, unfreeze, production in, scrap, or stocktake difference should be recorded here.
+库存流水表。记录每一次库存变化，是库存追溯的核心表。
 
-Important fields:
+关键字段：
 
-- `transaction_no`: unique ledger movement number.
-- `transaction_type`: receipt, issue, adjustment, inventory_freeze, inventory_unfreeze, etc.
-- `quantity_change`, `before_quantity`, `after_quantity`: numeric movement trace.
-- `from_status`, `to_status`: stock status transition.
-- `source_type`, `source_id`, `source_no`: related business document.
-- `operator_id`, `operator_name`: actor trace.
-- `occurred_at`: business occurrence timestamp.
+- `transaction_no`：流水号。
+- `transaction_type`：流水类型，例如入库、出库、调整、冻结、解冻、生产入库、生产报废。
+- `quantity_change`：本次变化数量。
+- `before_quantity`、`after_quantity`：变化前后数量。
+- `from_status`、`to_status`：状态变化。
+- `source_type`、`source_id`、`source_no`：来源单据。
+- `operator_id`、`operator_name`：操作人。
+- `occurred_at`：发生时间。
 
 ### `inventory_holds`
 
-Inventory freeze/hold records for quality or abnormal handling. Tracks hold quantity, processed quantity, remaining quantity, abnormal type, discovery stage, responsible party, handling plan, status, and close expectations.
+库存冻结/锁定表。用于质量异常或风险库存冻结，记录冻结数量、已处理数量、剩余数量、异常类型、责任方、处理方案和状态。
 
 ### `warehouses`
 
-Warehouse master data. Stores code, name, type, status, and remark.
+仓库资料表。保存仓库编码、名称、类型、状态和备注。
 
 ### `locations`
 
-Warehouse location/bin master data. Stores warehouse code, location code/name, status, and remark.
+库位资料表。保存库位编码、名称、所属仓库、状态和备注。
 
 ### `receipts`
 
-Inventory receipt document header used by the warehouse module.
+仓储入库单主表。保存入库单号、来源类型、状态、入库日期、经办人和备注。
 
 ### `receipt_items`
 
-Line items under warehouse inventory receipts. Stores item, project, batch, quantity, warehouse, and location.
+仓储入库单明细表。保存入库物料、项目、批次、数量、仓库和库位。
 
 ### `issues`
 
-Inventory issue document header used by the warehouse module.
+仓储出库单主表。保存出库单号、来源类型、状态、出库日期、经办人和备注。
 
 ### `issue_items`
 
-Line items under warehouse inventory issues. Stores item, project, batch, quantity, warehouse, and location.
+仓储出库单明细表。保存出库物料、项目、批次、数量、仓库和库位。
 
 ### `stocktakes`
 
-Stocktake document header. Stores warehouse, stocktake date, status, actor, and notes.
+盘点单主表。保存盘点单号、仓库、盘点日期、状态、经办人和备注。
 
 ### `stocktake_items`
 
-Stocktake line items. Stores item, project, batch, system quantity, actual quantity, difference, and location.
+盘点单明细表。保存物料、项目、批次、账面数量、实盘数量、差异数量和库位。
 
 ### `material_receipts`
 
-Material receipt records used by the order/material flow.
+物料收货表。用于订单/物料流中的收货记录。
 
 ### `warehouse_receipts`
 
-Warehouse receipt records linked to material delivery plans.
+到货入库表。用于型材到货计划确认入库。
 
-## Quality
+## 质量
 
 ### `quality_abnormal_records`
 
-Production/reporting quality abnormal records.
+生产报工过程中的质量异常记录。
 
 ### `quality_issues`
 
-Quality issue header for operational abnormal handling. Can connect to inventory locks/freezes, source documents, severity, quantity, and status.
+质量问题主表。记录来源类型、严重程度、数量、处理状态、库存冻结关联和备注。
 
 ### `issue_actions`
 
-Action history for quality issues.
+质量问题处理动作表。记录质量问题的处理历史。
 
-## Delivery And Shipment
+## 交付与发货
 
 ### `material_delivery_plans`
 
-Planned inbound material delivery. Tracks supplier, material, quantity, planned ship date, arrival status, and notes.
+型材到货计划表。保存供应商、物料、数量、计划发货日期、到货状态和备注。
 
 ### `delivery_plans`
 
-Outbound delivery plan header.
+发货计划主表。保存发货计划基本信息。
 
 ### `delivery_plan_items`
 
-Outbound delivery plan line items.
+发货计划明细表。保存发货产品、数量和关联订单行。
 
 ### `shipments`
 
-Shipment header. Tracks customer/project/order linkage, planned/actual ship date, status, and notes.
+发货单主表。保存客户、项目、订单、计划发货日期、实际发货日期、状态和备注。
 
 ### `shipment_items`
 
-Shipment lines. Tracks product/material, quantity, and related order lines.
+发货单明细表。保存产品、物料、数量和关联订单行。
 
-## Supply Chain And Events
+## 供应链事件
 
 ### `supply_chain_events`
 
-Cross-module event timeline for supply chain visibility and traceability.
+供应链事件表。用于记录跨模块业务事件，支持全链路追溯和看板展示。
 
-## Reporting Relationships
+## 关键追溯链路
 
-The most important operational traceability path is:
-
-```text
-Customer demand/order
-  -> production plan
-  -> work order / reporting
-  -> inventory transaction
-  -> inventory balance
-  -> delivery / shipment
-```
-
-Warehouse documents trace through:
+订单到交付：
 
 ```text
-receipts / issues / stocktakes
-  -> receipt_items / issue_items / stocktake_items
-  -> inventory_transactions
-  -> inventory_balances
+客户订单/需求
+  -> 生产计划
+  -> 工单/报工
+  -> 库存流水
+  -> 库存余额
+  -> 发货/交付
 ```
 
-Quality handling traces through:
+仓储单据到库存：
 
 ```text
-quality_issues
-  -> inventory_holds
-  -> inventory_transactions
-  -> inventory_balances
+入库单/出库单/盘点单
+  -> 单据明细
+  -> 库存流水
+  -> 库存余额
 ```
 
-## Notes For Future Improvement
+质量异常到库存：
 
-- Supplier, batch, and safety-stock analysis should be normalized into inventory query views or joined APIs so warehouse filtering can cover supplier, batch, overdue, and low-stock rules without frontend-only placeholders.
-- Inventory documents and ledger records should eventually share a stricter source document contract.
-- For analytics-heavy warehouse screens, consider adding read-optimized views for stock by project/customer/warehouse/status and stock aging.
+```text
+质量异常
+  -> 库存冻结
+  -> 库存流水
+  -> 库存余额
+```
+
+## 后续优化建议
+
+- 将供应商、批次、安全库存、库龄等信息接入库存查询视图。
+- 为库存总览增加按项目、客户、仓库、状态聚合的只读查询接口。
+- 为来源单据建立更统一的类型和编号规范。
+- 为质量冻结、超期库存、低于安全库存建立明确的业务规则表或计算视图。

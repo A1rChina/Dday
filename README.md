@@ -1,152 +1,209 @@
-# cf-taskflow-hono (MES Lite)
+# Dday ERP/MES Lite
 
-一个基于 **Cloudflare Workers + D1 + Hono + React + Refine** 的轻量级、以订单交付为核心的制造执行系统（MES Lite）。
+Dday 是一个运行在 Cloudflare Workers 上的轻量级 ERP/MES 系统。项目围绕“订单交付闭环”构建，覆盖基础资料、客户订单、生产计划、工单执行、报工、仓储库存、质量异常、发货交付和供应链追溯。
 
-本项目原为个人工作流系统，现已全面重构升级为**涵盖供应链闭环管理的轻型 ERP/MES**。整个逻辑以“订单交付”为主线，支持单据环节下推，并提供强大的全局流转追溯（上查/下查）功能。
+后端使用 Hono + Cloudflare D1 + Drizzle ORM，前端使用 React + Vite + Refine + Ant Design。部署后，Cloudflare Worker 同时提供 API 和后台管理页面。
 
-## 核心业务闭环
+## 核心能力
 
-系统通过一套标准化的实体流转打通了生产制造与交付流程：
+- 订单管理：维护客户需求、订单行、交付状态和生产关联。
+- 生产计划：从订单生成生产计划，跟踪计划数量、风险、齐套和状态。
+- 工单执行：管理工单、工序、报工、良品、不良和报废数量。
+- 仓储管理：支持库存总览、库存明细、库存流水、关联单据、入库、出库、盘点、冻结和调整。
+- 质量管理：记录质量异常，联动库存冻结、解冻、报废和处理动作。
+- 交付管理：维护发货计划、出货记录和订单关闭。
+- 基础资料：维护客户、供应商、项目、产品、型材、工厂、工序、设备等数据。
+- 权限管理：提供用户、角色、权限点和基础 RBAC 支持。
+- 追溯分析：通过库存流水、来源单据、订单、计划、工单、质量和发货记录串联业务链路。
 
-1. **订单管理 (Order Management)**: 支持导入客户销售订单，触发生产需求，跟踪整体交付进度。
-2. **计划管理 (Plan Management)**: 将订单下推转换为具体的生产排程计划，进行能力分配。
-3. **生产管理 (Work Order / Production)**: 生产计划下达成为具体的车间生产工单（Work Order）。支持生产报工（Report Progress），报工完成后系统自动扣减待生产数量并执行成品入库。
-4. **库存管理 (Inventory Management)**: 实时监控原材料、半成品和成品的库存（可用、冻结、报废）。提供手动物料入库入口（Receive Material）。
-5. **发货管理 (Delivery Management)**: 订单下推生成发货计划，结合质量与库存状况进行发货放行控制，确认发货后扣减可用库存。
-6. **质量管理 (Quality Management)**: 记录全流程的质量异常，支持联动冻结风险库存，阻断不良品发货。
-7. **全链路追溯 (Traceability)**: 以订单或产品为锚点，双向追溯从物料入库、生产计划、工单执行到发货出库的完整历史和关联单据。
+## 技术栈
 
-## 技术栈 (Tech Stack)
+- 运行环境：Cloudflare Workers
+- 数据库：Cloudflare D1 SQLite
+- ORM：Drizzle ORM
+- 后端框架：Hono
+- 请求校验：Zod
+- 前端框架：React + Vite
+- 管理后台：Refine + Ant Design + Ant Design Pro Components
+- 语言：TypeScript
 
-* **Edge Compute**: Cloudflare Workers
-* **Database**: Cloudflare D1 (SQLite) + Drizzle ORM
-* **Backend API**: Hono + Zod (Validation)
-* **Frontend**: React + Vite + Refine + Ant Design
-* **Language**: TypeScript
+## 目录说明
 
----
+详细文件说明见：
 
-## 1. 安装依赖
+- [项目文件结构说明](docs/PROJECT_STRUCTURE.md)
+- [数据库表结构说明](docs/DATABASE_SCHEMA.md)
+
+关键目录：
+
+- `src/index.ts`：Worker 入口，注册中间件、API 路由和静态页面。
+- `src/routes`：API 路由层。
+- `src/services`：业务逻辑层。
+- `src/schemas`：Zod 请求和查询参数校验。
+- `src/db`：D1/Drizzle 数据库 schema 和客户端。
+- `src/admin`：后台管理前端。
+- `migrations`：D1 数据库迁移 SQL。
+- `docs`：项目结构和数据库说明文档。
+
+## 本地准备
+
+安装依赖：
 
 ```bash
 npm install
 ```
 
-## 2. 创建 D1 数据库
+复制本地环境变量：
+
+```bash
+copy .dev.vars.example .dev.vars
+```
+
+然后修改 `.dev.vars` 中的 `APP_TOKEN`。该文件包含本地密钥，不应提交到 Git。
+
+## 数据库
+
+创建 D1 数据库：
 
 ```bash
 npm run db:create
 ```
 
-Cloudflare 会输出类似配置：
+将 Cloudflare 返回的 `database_id` 写入 `wrangler.jsonc` 中的 D1 配置，binding 必须为 `DB`。
 
-```json
-{
-  "binding": "DB",
-  "database_name": "taskflow",
-  "database_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-}
-```
-
-把 `database_id` 填入 `wrangler.jsonc` 中对应的 `d1_databases` 配置块里。注意：代码里只读取 `c.env.DB`，所以 binding 必须叫 `DB`。
-
-## 3. 初始化数据库表
-
-本地开发环境：
+执行本地迁移：
 
 ```bash
 npm run db:migrate:local
 ```
 
-线上远程环境：
+执行远程迁移：
 
 ```bash
 npm run db:migrate:remote
 ```
 
-部署后如果页面能打开，但数据无法读取或保存，请优先检查远程迁移是否已执行，可以使用以下命令查看已执行的迁移文件：
+查看远程迁移状态：
 
 ```bash
 npm run db:migrations:remote
 ```
 
-## 4. 设置访问令牌 (Auth Token)
+## 本地开发
 
-本地开发：
-
-```bash
-cp .dev.vars.example .dev.vars
-```
-
-然后把 `.dev.vars` 里的 `APP_TOKEN` 改成你自己的专属密钥。
-
-线上环境：
+启动 Worker API 和静态资源服务：
 
 ```bash
-npx wrangler secret put APP_TOKEN
+npm run dev
 ```
 
-## 5. 本地开发运行
+默认地址：
 
-本项目包含了 Backend API 和 Frontend SPA。本地开发时需要同时启动这两个服务：
+```text
+http://localhost:8787
+```
 
-1. **启动后端 Hono 服务** (默认监听 `http://localhost:8787`):
-   ```bash
-   npm run dev
-   ```
+如需单独启动 Vite 前端开发服务：
 
-2. **启动前端 Admin 界面** (默认监听 `http://localhost:5173`):
-   打开一个新的终端窗口：
-   ```bash
-   npm run admin:dev
-   ```
+```bash
+npm run admin:dev
+```
 
-访问 `http://localhost:5173`。在页面右上角的配置面板中填入你的 `APP_TOKEN` 并保存。
+默认地址：
 
-## 6. 构建与部署到 Cloudflare
+```text
+http://localhost:5173
+```
 
-部署包含两个步骤：先构建前端静态文件，然后再推送整个 Worker。
+## 构建与部署
+
+类型检查并构建前端：
 
 ```bash
 npm run build
+```
+
+部署到 Cloudflare：
+
+```bash
 npm run deploy
 ```
 
-发布成功后，访问：
+当前项目已部署到：
+
 ```text
-https://你的-worker.workers.dev
+https://cf-taskflow-hono.3rr.workers.dev
 ```
 
-## 7. 线上状态监控
+## 健康检查
 
-部署后可以访问探针地址检查数据库绑定及连通状态：
+访问：
+
 ```text
-https://你的-worker.workers.dev/healthz
+/healthz
 ```
 
-正常时应看到：
+正常返回示例：
+
 ```json
 {
   "ok": true,
+  "service": "cf-taskflow-hono",
   "database": {
     "binding": true,
     "connected": true,
-    "schema_ready": true,
-    "order_count": 0
+    "schema_ready": true
   }
 }
 ```
 
-## API 权限校验
+## API 认证
 
-对于外部直接调用 API，所有 `/api/*` 请求都需要带上认证头：
+除登录相关接口外，`/api/*` 请求需要带认证信息。
+
+请求头：
 
 ```text
-X-App-Token: 你的APP_TOKEN
-```
-或者
-```text
-Authorization: Bearer 你的APP_TOKEN
+x-app-token: <APP_TOKEN>
+x-app-role: admin
 ```
 
-如果未携带有效的 Token，系统将返回 `401 Unauthorized`。
+或：
+
+```text
+Authorization: Bearer <APP_TOKEN>
+```
+
+## GitHub 同步建议
+
+推荐提交内容：
+
+- `src`
+- `migrations`
+- `docs`
+- `README.md`
+- `package.json`
+- `package-lock.json`
+- `wrangler.jsonc`
+- `vite.config.ts`
+- `tsconfig.json`
+- `.dev.vars.example`
+
+不应提交：
+
+- `.dev.vars`
+- `node_modules`
+- `.wrangler`
+- `dist`
+- 日志文件
+
+## 常用命令
+
+```bash
+npm run typecheck
+npm run build
+npm run dev
+npm run deploy
+npm run db:migrate:local
+npm run db:migrate:remote
+```
